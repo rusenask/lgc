@@ -17,8 +17,9 @@ func getStubList(scenario string) string {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		// fmt.Printf("%s", err)
 		fmt.Printf("%s", err)
 	}
-	// fmt.Printf("%s\n", string(body))
+	fmt.Println("Response body got, returning bytes")
 	return string(body)
 }
