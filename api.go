@@ -32,6 +32,24 @@ func getAllDelayPolicies() []byte {
 	return GetJSONResponse(url)
 }
 
+// begin/session (GET, POST)
+//    query args:
+//        scenario = scenario name
+//        session = session name
+//        mode = playback|record
+//
+// stubo/api/begin/session?scenario=first&session=first_1&mode=playback
+func beginSession(session, scenario, mode string) []byte {
+	// create scenario
+	url := "http://localhost:8001/stubo/api/v2/scenarios"
+	var s params
+	s.body = "{'scenario':" + scenario + " }"
+	s.url = url
+	s.method = "PUT"
+	makeRequest(s)
+	return []byte("nothing yet")
+}
+
 func makeRequest(s params) []byte {
 	fmt.Println("Transformed to: ", s.url)
 	fmt.Println("Body: ", s.body)
