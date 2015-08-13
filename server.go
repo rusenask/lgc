@@ -22,11 +22,11 @@ func StublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		getStubList(scenario[0])
+		response := getStubList(scenario[0])
+		w.Write([]byte(response))
 	} else {
 		fmt.Println("Scenario name not provided.")
 	}
-
 }
 
 func main() {
