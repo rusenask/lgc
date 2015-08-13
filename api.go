@@ -19,6 +19,6 @@ func getStubList(scenario string) string {
 	if err != nil {
 		fmt.Printf("%s", err)
 	}
-	fmt.Printf("%s\n", string(body))
-
+	// fmt.Printf("%s\n", string(body))
+	return string(body)
 }
