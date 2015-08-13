@@ -23,13 +23,9 @@ func StublistHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
 		response := getStubList(scenario[0])
-		js, err := json.Marshal(response)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(js)
+		w.Write(response)
 	} else {
 		fmt.Println("Scenario name not provided.")
 	}
