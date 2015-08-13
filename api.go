@@ -10,8 +10,9 @@ import (
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
 func getStubList(scenario string) []byte {
-	fmt.Println("got scenario to list stubs:", scenario)
-	resp, err := http.Get("http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs")
+	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+	fmt.Println("Transformed to: ", url)
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Got error: ", err)
 	}
