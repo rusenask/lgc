@@ -8,13 +8,16 @@ import (
 	"github.com/go-zoo/bone"
 )
 
-func MyHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello %v\n", bone.GetValue(r, "id"))
+// StublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
+func StublistHandler(w http.ResponseWriter, r *http.Request) {
+	scenario := r.URL.Query().Get("scenario")
+	fmt.Println("got:", r.URL.Query())
+	fmt.Println("Scenario name:", scenario)
 }
 
 func main() {
 	mux := bone.New()
-	mux.Get("/stubo/api/get/stublist/:id", http.HandlerFunc(MyHandler))
+	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(StublistHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
