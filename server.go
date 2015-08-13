@@ -1,21 +1,44 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/codegangsta/negroni"
 	"github.com/go-zoo/bone"
 )
 
+// Configuration to hold stubo details
+type Configuration struct {
+	StuboHost string
+	StuboPort string
+}
+
 // StublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func StublistHandler(w http.ResponseWriter, r *http.Request) {
-	scenario := r.URL.Query().Get("scenario")
-	fmt.Println("got:", r.URL.Query())
-	fmt.Println("Scenario name:", scenario)
+	scenario, ok := r.URL.Query()["scenario"]
+	if ok {
+		fmt.Println("got:", r.URL.Query())
+		// expecting one param - scenario
+		getStubList(scenario[0])
+	} else {
+		fmt.Println("Scenario name not provided.")
+	}
+
 }
 
 func main() {
+	// getting configuration
+	file, _ := os.Open("conf.json")
+	decoder := json.NewDecoder(file)
+	configuration := Configuration{}
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(StublistHandler))
 	n := negroni.Classic()
