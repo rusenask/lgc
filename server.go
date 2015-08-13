@@ -60,6 +60,7 @@ func main() {
 
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(StublistHandler))
+	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(GetDelayPolicyHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
