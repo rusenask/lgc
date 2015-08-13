@@ -22,6 +22,11 @@ func getDelayPolicy(name string) []byte {
 	return GetJSONResponse(url)
 }
 
+func getAllDelayPolicies() []byte {
+	url := "http://localhost:8001/stubo/api/v2/delay-policy/detail"
+	return GetJSONResponse(url)
+}
+
 // GetJSONResponse calls stubo
 func GetJSONResponse(url string) []byte {
 	fmt.Println("Transformed to: ", url)
