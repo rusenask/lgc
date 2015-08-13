@@ -31,6 +31,23 @@ func StublistHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetDelayPolicyHandler - returns delay policy information, list all if
+// name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
+func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+	name, ok := r.URL.Query()["name"]
+	if ok {
+		// name provided so looking for specific delay
+		fmt.Println("got:", r.URL.Query())
+		// expecting one param - scenario
+		response := getDelayPolicy(name[0])
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		fmt.Println("Scenario name not provided.")
+	}
+}
+
 func main() {
 	// getting configuration
 	file, _ := os.Open("conf.json")
