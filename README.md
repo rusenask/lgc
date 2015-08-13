@@ -11,3 +11,9 @@ http://localhost:3000/stubo/api/get/delay_policy?name=delay_1
 This then gets translated into:
 http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
 LGC gets response and sends it back to the client.
+
+
+Requirements
+go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
+
+go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
