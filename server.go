@@ -44,7 +44,10 @@ func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		fmt.Println("Scenario name not provided.")
+		// name is not provided, getting all delay policies
+		response := getAllDelayPolicies()
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
 	}
 }
 
