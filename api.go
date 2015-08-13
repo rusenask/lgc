@@ -31,6 +31,7 @@ func getStubList(scenario string) []byte {
 // returns raw response in bytes
 func getDelayPolicy(name string) []byte {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/objects/" + name
+// GetJSONResponse calls stubo
 	fmt.Println("Transformed to: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
