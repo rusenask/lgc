@@ -12,8 +12,9 @@ import (
 
 // Configuration to hold stubo details
 type Configuration struct {
-	StuboHost string
-	StuboPort string
+	StuboHost    string
+	StuboPort    string
+	LgcProxyPort string
 }
 
 // StublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
