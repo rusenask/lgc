@@ -32,6 +32,27 @@ func getAllDelayPolicies() []byte {
 	return GetJSONResponse(url)
 }
 
+func makeRequest(s params) []byte {
+	fmt.Println("Transformed to: ", s.url)
+	fmt.Println("Body: ", s.body)
+	var jsonStr = []byte(s.body)
+	req, err := http.NewRequest(s.method, s.url, bytes.NewBuffer(jsonStr))
+	//req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	// reading body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+	return body
+}
+
 // GetJSONResponse calls stubo
 func GetJSONResponse(url string) []byte {
 	fmt.Println("Transformed to: ", url)
