@@ -11,19 +11,7 @@ import (
 // returns raw response in bytes
 func getStubList(scenario string) []byte {
 	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	fmt.Println("Transformed to: ", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Got error: ", err)
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		// fmt.Printf("%s", err)
-		fmt.Printf("%s", err)
-	}
-	fmt.Println("Response body got, returning bytes")
-	return body
+	return GetJSONResponse(url)
 }
 
 // getDelayPolicy gets specified delay-policy
@@ -31,7 +19,11 @@ func getStubList(scenario string) []byte {
 // returns raw response in bytes
 func getDelayPolicy(name string) []byte {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/objects/" + name
+	return GetJSONResponse(url)
+}
+
 // GetJSONResponse calls stubo
+func GetJSONResponse(url string) []byte {
 	fmt.Println("Transformed to: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
