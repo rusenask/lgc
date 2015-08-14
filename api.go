@@ -57,7 +57,7 @@ func createScenario(scenario string) ([]byte, error) {
 
 // getScenariosDetail gets and returns all scenarios with details
 func getScenariosDetail() ([]byte, error) {
-	url := StuboURI + "/stubo/api/v2/scenarios/detail"
+	url := "/stubo/api/v2/scenarios/detail"
 	return GetResponseBody(url)
 }
 
