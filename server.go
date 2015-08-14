@@ -52,6 +52,11 @@ func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func BeginSessionHandler(w http.ResponseWriter, r *http.Request) {
+	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
+	fmt.Println(queryArgs)
+}
+
 func main() {
 	// getting configuration
 	file, _ := os.Open("conf.json")
