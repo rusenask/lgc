@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -158,5 +159,5 @@ func main() {
 	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenarios))
 	n := negroni.Classic()
 	n.UseHandler(mux)
-	n.Run(":3000")
+	n.Run(*port)
 }
