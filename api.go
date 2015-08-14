@@ -32,29 +32,22 @@ func getAllDelayPolicies() ([]byte, error) {
 	return GetJSONResponse(url)
 }
 
-// begin/session (GET, POST)
-//    query args:
-//        scenario = scenario name
-//        session = session name
-//        mode = playback|record
-//
-// stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSession(session, scenario, mode string) []byte {
 	// begin session
 	return []byte("nothing yet")
 }
 
-func createScenario(scenario string) []byte {
+func createScenario(scenario string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/scenarios"
 	var s params
-	s.body = "{'scenario':" + scenario + " }"
+	s.body = `{"scenario": "` + scenario + `"}`
+	fmt.Println("formated body: ", s.body)
 	s.url = url
 	s.method = "PUT"
-	makeRequest(s)
-	return []byte("nothing yet")
+	return makeRequest(s)
 }
 
-func makeRequest(s params) []byte {
+func makeRequest(s params) ([]byte, error) {
 	fmt.Println("Transformed to: ", s.url)
 	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
@@ -64,15 +57,15 @@ func makeRequest(s params) []byte {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return []byte(""), err
 	}
 	defer resp.Body.Close()
 	// reading body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("%s", err)
+		return []byte(""), err
 	}
-	return body
+	return body, nil
 }
 
 // GetJSONResponse calls stubo
