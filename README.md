@@ -27,6 +27,7 @@ go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web 
 * end/session - not compatible with current API v2, use "end/sessions" call
 * end/sessions - __implemented__
 * put/scenarios - not implemented
+* get/scenarios - __implemented__
 * put/stub - not present in API v2
 * get/stublist - __implemented__
 * put/delay_policy - not implemented

@@ -16,7 +16,7 @@ type params struct {
 // returns raw response in bytes
 func getStubList(scenario string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return GetJSONResponse(url)
+	return GetResponseBody(url)
 }
 
 // getDelayPolicy gets specified delay-policy
@@ -24,12 +24,12 @@ func getStubList(scenario string) ([]byte, error) {
 // returns raw response in bytes
 func getDelayPolicy(name string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/objects/" + name
-	return GetJSONResponse(url)
+	return GetResponseBody(url)
 }
 
 func getAllDelayPolicies() ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/detail"
-	return GetJSONResponse(url)
+	return GetResponseBody(url)
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
@@ -52,6 +52,12 @@ func createScenario(scenario string) ([]byte, error) {
 	s.url = url
 	s.method = "PUT"
 	return makeRequest(s)
+}
+
+// getScenariosDetail gets and returns all scenarios with details
+func getScenariosDetail() ([]byte, error) {
+	url := "http://localhost:8001/stubo/api/v2/scenarios/detail"
+	return GetResponseBody(url)
 }
 
 func endSessions(scenario string) ([]byte, error) {
@@ -85,8 +91,8 @@ func makeRequest(s params) ([]byte, error) {
 	return body, nil
 }
 
-// GetJSONResponse calls stubo
-func GetJSONResponse(url string) ([]byte, error) {
+// GetResponseBody calls stubo
+func GetResponseBody(url string) ([]byte, error) {
 	fmt.Println("Transformed to: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
