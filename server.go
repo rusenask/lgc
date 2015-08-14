@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/codegangsta/negroni"
@@ -23,12 +24,15 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response := getStubList(scenario[0])
+		response, err := getStubList(scenario[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		fmt.Println("Scenario name not provided.")
 		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
@@ -41,13 +45,21 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response := getDelayPolicy(name[0])
+		response, err := getDelayPolicy(name[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
 		// name is not provided, getting all delay policies
-		response := getAllDelayPolicies()
+		response, err := getAllDelayPolicies()
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	}
