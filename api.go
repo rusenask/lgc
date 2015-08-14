@@ -14,7 +14,7 @@ type params struct {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func getStubList(scenario string) ([]byte, error) {
+func getScenarioStubs(scenario string) ([]byte, error) {
 	fmt.Println(StuboConfig.StuboHost)
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
 	return GetResponseBody(path)
