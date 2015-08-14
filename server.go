@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,10 +14,16 @@ import (
 
 // Configuration to hold stubo details
 type Configuration struct {
-	StuboHost    string
-	StuboPort    string
-	LgcProxyPort string
+	StuboProtocol string
+	StuboHost     string
+	StuboPort     string
 }
+
+// StuboConfig stores target Stubo instance details (protocol, hostname, port, etc..)
+var StuboConfig Configuration
+
+// StuboURI stores URI (e.g. "http://localhost:8001")
+var StuboURI string
 
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
@@ -131,11 +138,18 @@ func main() {
 	// getting configuration
 	file, _ := os.Open("conf.json")
 	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
-	err := decoder.Decode(&configuration)
+	StuboConfig = Configuration{}
+	err := decoder.Decode(&StuboConfig)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+	// looking for option args when starting App
+	// like ./lgc -port=":3000" would start on port 3000
+	var port = flag.String("port", ":3000", "Server port")
+	flag.Parse() // parse the flag
+
+	// assign StuboURI
+	StuboURI = StuboConfig.StuboProtocol + "://" + StuboConfig.StuboHost + ":" + StuboConfig.StuboPort
 
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
@@ -145,5 +159,5 @@ func main() {
 	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenarios))
 	n := negroni.Classic()
 	n.UseHandler(mux)
-	n.Run(":3000")
+	n.Run(*port)
 }

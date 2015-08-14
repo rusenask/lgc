@@ -13,10 +13,25 @@ http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
 LGC gets response and sends it back to the client.
 
 
-###Requirements
+### Requirements
 go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
 
 go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
+
+### Configuration
+
+Edit conf.json.example with your stubo instance details:
+{
+  "StuboHost": "localhost", // your stubo hostname
+  "StuboPort": "8001",  // your stubo port
+  "StuboProtocol": "http" // protocol (should probably be http anyway so leave it)
+}
+Rename conf.json.example to conf.json
+
+Default LGC proxy port is 3000. You are expected to change it during server startup:
+./lgc -port=":8001"
+Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
+
 
 ### Current legacy API translations
 
