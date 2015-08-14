@@ -71,10 +71,11 @@ func endSessions(scenario string) ([]byte, error) {
 }
 
 func makeRequest(s params) ([]byte, error) {
-	fmt.Println("URL transformed to: ", s.url)
+	url := StuboURI + s.path
+	fmt.Println("URL transformed to: ", url)
 	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
-	req, err := http.NewRequest(s.method, s.url, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
