@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/codegangsta/negroni"
@@ -17,38 +18,100 @@ type Configuration struct {
 	LgcProxyPort string
 }
 
-// StublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
-func StublistHandler(w http.ResponseWriter, r *http.Request) {
+// stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
+func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response := getStubList(scenario[0])
+		response, err := getStubList(scenario[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		fmt.Println("Scenario name not provided.")
+		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
 
-// GetDelayPolicyHandler - returns delay policy information, list all if
+// getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
-func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	if ok {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response := getDelayPolicy(name[0])
+		response, err := getDelayPolicy(name[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
 		// name is not provided, getting all delay policies
-		response := getAllDelayPolicies()
+		response, err := getAllDelayPolicies()
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
+	}
+}
+
+// begin/session (GET, POST)
+// stubo/api/begin/session?scenario=first&session=first_1&mode=playback
+func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
+	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
+	// retrieving details and validating request
+	if scenario, ok := queryArgs["scenario"]; ok {
+		if session, ok := queryArgs["session"]; ok {
+			if mode, ok := queryArgs["mode"]; ok {
+				// Create scenario. This can result in 422 (duplicate error) and this is
+				// fine, since we must only ensure that it exists.
+				_, err := createScenario(scenario[0])
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+				}
+				// Begin session
+				response, err := beginSession(session[0], scenario[0], mode[0])
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.Write(response)
+			} else {
+				http.Error(w, "Bad request, missing session mode key.", 400)
+			}
+		} else {
+			http.Error(w, "Bad request, missing session name.", 400)
+		}
+	} else {
+		http.Error(w, "Bad request, missing scenario name.", 400)
+	}
+}
+
+func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+	scenario, ok := r.URL.Query()["scenario"]
+	if ok {
+		fmt.Println("got:", r.URL.Query())
+		// expecting one param - scenario
+		response, err := endSessions(scenario[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
 
@@ -63,8 +126,10 @@ func main() {
 	}
 
 	mux := bone.New()
-	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(StublistHandler))
-	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(GetDelayPolicyHandler))
+	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
+	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
+	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
+	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
