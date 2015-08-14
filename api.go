@@ -92,7 +92,8 @@ func makeRequest(s params) ([]byte, error) {
 }
 
 // GetResponseBody calls stubo
-func GetResponseBody(url string) ([]byte, error) {
+func GetResponseBody(path string) ([]byte, error) {
+	url := StuboURI + path
 	fmt.Println("Transformed to: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
