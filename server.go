@@ -18,6 +18,12 @@ type Configuration struct {
 	StuboPort     string
 }
 
+// StuboConfig stores target Stubo instance details (protocol, hostname, port, etc..)
+var StuboConfig Configuration
+
+// StuboURI stores URI (e.g. "http://localhost:8001")
+var StuboURI string
+
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
