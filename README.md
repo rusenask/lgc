@@ -28,6 +28,10 @@ Edit conf.json.example with your stubo instance details:
 }
 Rename conf.json.example to conf.json
 
+Default LGC proxy port is 3000. You are expected to change it during server startup:
+./lgc -port=":8001"
+Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
+
 
 ### Current legacy API translations
 
