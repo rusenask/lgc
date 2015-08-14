@@ -65,7 +65,7 @@ func endSessions(scenario string) ([]byte, error) {
 }
 
 func makeRequest(s params) ([]byte, error) {
-	fmt.Println("Transformed to: ", s.url)
+	fmt.Println("URL transformed to: ", s.url)
 	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
 	req, err := http.NewRequest(s.method, s.url, bytes.NewBuffer(jsonStr))
