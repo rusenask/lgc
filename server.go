@@ -73,19 +73,19 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if scenario, ok := queryArgs["scenario"]; ok {
 		if session, ok := queryArgs["session"]; ok {
 			if mode, ok := queryArgs["mode"]; ok {
-				// create scenario
+				// Create scenario. This can result in 422 (duplicate error) and this is
+				// fine, since we must only ensure that it exists.
 				_, err := createScenario(scenario[0])
 				if err != nil {
 					http.Error(w, err.Error(), 500)
 				}
-				// begin session
-				_, err = beginSession(session[0], scenario[0], mode[0])
+				// Begin session
+				response, err := beginSession(session[0], scenario[0], mode[0])
 				if err != nil {
 					http.Error(w, err.Error(), 500)
 				}
-				fmt.Println(scenario)
-				fmt.Println(session)
-				fmt.Println(mode)
+				w.Header().Set("Content-Type", "application/json")
+				w.Write(response)
 			} else {
 				http.Error(w, "Bad request, missing session mode key.", 400)
 			}
