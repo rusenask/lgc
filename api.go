@@ -11,13 +11,19 @@ type params struct {
 	path, body, method string
 }
 
+// Client structure to be used by HTTP
+type Client struct {
+	HTTPClient *http.Client
+}
+
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
 func getScenarioStubs(scenario string) ([]byte, error) {
 	fmt.Println(StuboConfig.StuboHost)
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return GetResponseBody(path)
+	client := &Client{&http.Client{}}
+	return client.GetResponseBody(path)
 }
 
 // getDelayPolicy gets specified delay-policy
@@ -25,12 +31,14 @@ func getScenarioStubs(scenario string) ([]byte, error) {
 // returns raw response in bytes
 func getDelayPolicy(name string) ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/objects/" + name
-	return GetResponseBody(path)
+	client := &Client{&http.Client{}}
+	return client.GetResponseBody(path)
 }
 
 func getAllDelayPolicies() ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/detail"
-	return GetResponseBody(path)
+	client := &Client{&http.Client{}}
+	return client.GetResponseBody(path)
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
@@ -57,14 +65,16 @@ func createScenario(scenario string) ([]byte, error) {
 
 // getScenariosDetail gets and returns all scenarios with details
 func getScenariosDetail() ([]byte, error) {
-	url := "/stubo/api/v2/scenarios/detail"
-	return GetResponseBody(url)
+	path := "/stubo/api/v2/scenarios/detail"
+	client := &Client{&http.Client{}}
+	return client.GetResponseBody(path)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
 func getScenarios() ([]byte, error) {
-	url := "/stubo/api/v2/scenarios"
-	return GetResponseBody(url)
+	path := "/stubo/api/v2/scenarios"
+	client := &Client{&http.Client{}}
+	return client.GetResponseBody(path)
 }
 
 func endSessions(scenario string) ([]byte, error) {
@@ -100,10 +110,10 @@ func makeRequest(s params) ([]byte, error) {
 }
 
 // GetResponseBody calls stubo
-func GetResponseBody(path string) ([]byte, error) {
+func (m *Client) GetResponseBody(path string) ([]byte, error) {
 	url := StuboURI + path
 	fmt.Println("Transformed to: ", url)
-	resp, err := http.Get(url)
+	resp, err := m.HTTPClient.Get(url)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return []byte(""), err
