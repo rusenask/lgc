@@ -54,6 +54,16 @@ func createScenario(scenario string) ([]byte, error) {
 	return makeRequest(s)
 }
 
+func endSessions(scenario string) ([]byte, error) {
+	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/action"
+	var s params
+	s.body = `{"end": "sessions"}`
+	fmt.Println("formated body for session begin: ", s.body)
+	s.url = url
+	s.method = "POST"
+	return makeRequest(s)
+}
+
 func makeRequest(s params) ([]byte, error) {
 	fmt.Println("Transformed to: ", s.url)
 	fmt.Println("Body: ", s.body)
