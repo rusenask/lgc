@@ -65,9 +65,31 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// begin/session (GET, POST)
+// stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
-	fmt.Println(queryArgs)
+	// retrieving details and validating request
+	if scenario, ok := queryArgs["scenario"]; ok {
+		if session, ok := queryArgs["session"]; ok {
+			if mode, ok := queryArgs["mode"]; ok {
+				_, err := createScenario(scenario[0])
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+				}
+				fmt.Println(scenario)
+				fmt.Println(session)
+				fmt.Println(mode)
+			} else {
+				http.Error(w, "Bad request, missing session mode key.", 400)
+			}
+		} else {
+			http.Error(w, "Bad request, missing session name.", 400)
+		}
+	} else {
+		http.Error(w, "Bad request, missing scenario name.", 400)
+	}
+
 }
 
 func main() {
