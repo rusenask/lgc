@@ -1,4 +1,5 @@
 {
   "StuboHost": "localhost",
-  "StuboPort": "8001"
+  "StuboPort": "8001",
+  "StuboProtocol": "http"
 }
