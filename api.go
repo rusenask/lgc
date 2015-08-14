@@ -61,10 +61,9 @@ func (c *Client) createScenario(scenario string) ([]byte, error) {
 }
 
 // getScenariosDetail gets and returns all scenarios with details
-func getScenariosDetail() ([]byte, error) {
+func (c *Client) getScenariosDetail() ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/detail"
-	client := &Client{&http.Client{}}
-	return client.GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
