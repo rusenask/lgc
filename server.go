@@ -29,6 +29,7 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		fmt.Println("Scenario name not provided.")
+		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
 
