@@ -50,14 +50,14 @@ func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
-func createScenario(scenario string) ([]byte, error) {
+func (c *Client) createScenario(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios"
 	var s params
 	s.body = `{"scenario": "` + scenario + `"}`
 	fmt.Println("formated body: ", s.body)
 	s.path = path
 	s.method = "PUT"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
