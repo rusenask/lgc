@@ -72,16 +72,19 @@ func makeRequest(s params) []byte {
 }
 
 // GetJSONResponse calls stubo
-func GetJSONResponse(url string) []byte {
+func GetJSONResponse(url string) ([]byte, error) {
 	fmt.Println("Transformed to: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Got error: ", err)
+		fmt.Printf("%s", err)
+		return []byte(""), err
 	}
 	defer resp.Body.Close()
+	// reading resposne body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
+		return []byte(""), err
 	}
-	return body
+	return body, nil
 }
