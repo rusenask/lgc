@@ -28,10 +28,9 @@ func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
-func getDelayPolicy(name string) ([]byte, error) {
+func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/objects/" + name
-	client := &Client{&http.Client{}}
-	return client.GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 func getAllDelayPolicies() ([]byte, error) {
