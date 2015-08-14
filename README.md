@@ -20,37 +20,33 @@ go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web 
 
 ### Current legacy API translations
 
-* "/stubo/api/get/status", "GetStatusHandler") - not implemented
-* ("/stubo/api/get/response", "GetResponseHandler") - not implemented
-* ("/stubo/api/get/response/.*", "GetResponseHandler") - not implemented
-* ("/stubo/api/begin/session", "BeginSessionHandler") - __implemented__
-* ("/stubo/api/end/session", "EndSessionHandler") - compatibility issues*
-* ("/stubo/api/end/sessions", "EndSessionsHandler") - __implemented__
-* ("/stubo/api/put/stub", "PutStubHandler") - not implemented
-* ("/stubo/api/delete/stubs", "DeleteStubsHandler") - not implemented
-* ("/stubo/api/get/stubcount", "GetStubCountHandler") - not implemented
-* ("/stubo/api/get/stublist", "GetStubListHandler") - __implemented__
-* ("/stubo/api/get/scenarios", "GetScenariosHandler") - not implemented
-* ("/stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)", "PutScenarioHandler") - not implemented
-* ("/stubo/api/get/export", "GetStubExportHandler") - not implemented
-* ("/stubo/api/get/stats", "GetStatsHandler") - not implemented
-* ("/stubo/api/put/delay_policy", "PutDelayPolicyHandler") - not implemented
-* ("/stubo/api/get/delay_policy", "GetDelayPolicyHandler") - __implemented__
-* ("/stubo/api/delete/delay_policy", "DeleteDelayPolicyHandler") - not implemented
-* ("/stubo/api/get/version", "GetVersionHandler") - not implemented
-* ("/stubo/api/put/module", "PutModuleHandler") - not implemented
-* ("/stubo/api/delete/module", "DeleteModuleHandler") - not implemented
-* ("/stubo/api/delete/modules", "DeleteModulesHandler") - not implemented
-* ("/stubo/api/get/modulelist", "GetModuleListHandler") - not implemented
-* ("/stubo/api/put/bookmark", "PutBookmarkHandler") - not implemented, this functionality will probably be removed
-* ("/stubo/api/get/bookmarks", "GetBookmarksHandler") - not implemented, this functionality will probably be removed
-* ("/stubo/api/put/setting", "PutSettingHandler") - not implemented
-* ("/stubo/api/get/setting", "GetSettingHandler") - not implemented
-* ("/stubo/api/jump/bookmark", "JumpBookmarkHandler") - not implemented, this functionality will probably be removed
-* ("/stubo/api/delete/bookmark", "DeleteBookmarkHandler") - not implemented, this functionality will probably be removed
-* ("/stubo/api/import/bookmarks", "ImportBookmarksHandler") - not implemented, this functionality will probably be removed
-* ("/stubo/default/execCmds", "StuboCommandHandler") - not implemented
-* ("/stubo/api/exec/cmds", "StuboCommandHandler") - not implemented
+* exec/cmds - not present in API v2
+* get/version - not present in API v2
+* get/status - not present in API v2
+* begin/session - __implemented__ (both playback and record modes)
+* end/session - not compatible with current API v2, use "end/sessions" call
+* end/sessions - __implemented__
+* put/scenarios - not implemented
+* put/stub - not present in API v2
+* get/stublist - __implemented__
+* put/delay_policy - not implemented
+* get/delay_policy:
+    + name provided - __implemented__
+    + name not provided (should list all delay policies) - __implemented__
+* delete/delay_policy - not implemented
+* get/response - not present in API v2
+* delete/stubs - not implemented
+* get/export - not implemented
+* get/stubcount - not implemented
+* put/module - not present in API v2
+* get/modulelist - not present in API v2
+* delete/module - not present in API v2
+* delete/modules - not present in API v2
+* Set Tracking Level - not present in API v2
+* Blacklist a host URL - not present in API v2
+* Delete Bookmark - not present in API v2
+* List Bookmarks - not present in API v2
+* get/stats - not present in API v2
 
 ### Compatibility
 API compatibility issues:
