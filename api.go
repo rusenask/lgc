@@ -11,67 +11,78 @@ type params struct {
 	path, body, method string
 }
 
+// Client structure to be used by HTTP
+type Client struct {
+	HTTPClient *http.Client
+}
+
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func getStubList(scenario string) ([]byte, error) {
+func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 	fmt.Println(StuboConfig.StuboHost)
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
-func getDelayPolicy(name string) ([]byte, error) {
+func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/objects/" + name
-	return GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
-func getAllDelayPolicies() ([]byte, error) {
+func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/detail"
-	return GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
-func beginSession(session, scenario, mode string) ([]byte, error) {
+func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
 	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
-func createScenario(scenario string) ([]byte, error) {
+func (c *Client) createScenario(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios"
 	var s params
 	s.body = `{"scenario": "` + scenario + `"}`
 	fmt.Println("formated body: ", s.body)
 	s.path = path
 	s.method = "PUT"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
-func getScenariosDetail() ([]byte, error) {
-	url := "/stubo/api/v2/scenarios/detail"
-	return GetResponseBody(url)
+func (c *Client) getScenariosDetail() ([]byte, error) {
+	path := "/stubo/api/v2/scenarios/detail"
+	return c.GetResponseBody(path)
 }
 
-func endSessions(scenario string) ([]byte, error) {
+// getScenarios gets and returns all scenarios with details
+func (c *Client) getScenarios() ([]byte, error) {
+	path := "/stubo/api/v2/scenarios"
+	return c.GetResponseBody(path)
+}
+
+func (c *Client) endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
 	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
-func makeRequest(s params) ([]byte, error) {
+func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
 	fmt.Println("URL transformed to: ", url)
 	fmt.Println("Body: ", s.body)
@@ -79,8 +90,7 @@ func makeRequest(s params) ([]byte, error) {
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return []byte(""), err
 	}
@@ -94,10 +104,10 @@ func makeRequest(s params) ([]byte, error) {
 }
 
 // GetResponseBody calls stubo
-func GetResponseBody(path string) ([]byte, error) {
+func (c *Client) GetResponseBody(path string) ([]byte, error) {
 	url := StuboURI + path
 	fmt.Println("Transformed to: ", url)
-	resp, err := http.Get(url)
+	resp, err := c.HTTPClient.Get(url)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return []byte(""), err

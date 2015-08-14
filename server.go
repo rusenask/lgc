@@ -31,7 +31,8 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response, err := getStubList(scenario[0])
+		client := &Client{&http.Client{}}
+		response, err := client.getScenarioStubs(scenario[0])
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -48,11 +49,13 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
 func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
+	client := &Client{&http.Client{}}
 	if ok {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response, err := getDelayPolicy(name[0])
+
+		response, err := client.getDelayPolicy(name[0])
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -62,7 +65,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		// name is not provided, getting all delay policies
-		response, err := getAllDelayPolicies()
+		response, err := client.getAllDelayPolicies()
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -82,12 +85,13 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 			if mode, ok := queryArgs["mode"]; ok {
 				// Create scenario. This can result in 422 (duplicate error) and this is
 				// fine, since we must only ensure that it exists.
-				_, err := createScenario(scenario[0])
+				client := &Client{&http.Client{}}
+				_, err := client.createScenario(scenario[0])
 				if err != nil {
 					http.Error(w, err.Error(), 500)
 				}
 				// Begin session
-				response, err := beginSession(session[0], scenario[0], mode[0])
+				response, err := client.beginSession(session[0], scenario[0], mode[0])
 				if err != nil {
 					http.Error(w, err.Error(), 500)
 				}
@@ -109,7 +113,8 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		response, err := endSessions(scenario[0])
+		client := &Client{&http.Client{}}
+		response, err := client.endSessions(scenario[0])
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -122,8 +127,9 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getScenarios(w http.ResponseWriter, r *http.Request) {
-	response, err := getScenariosDetail()
+func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
+	client := &Client{&http.Client{}}
+	response, err := client.getScenarios()
 	// checking whether we got good response
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -156,7 +162,7 @@ func main() {
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
 	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
-	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenarios))
+	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenariosHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(*port)
