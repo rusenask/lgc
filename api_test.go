@@ -42,15 +42,28 @@ func testTools(code int, body string) (*httptest.Server, *Client) {
 	return server, client
 }
 
-func TestGetScenarios(t *testing.T) {
-	testData := `{"version":"1.2.3","data": [{"name","scenario1"}]}`
+func TestGetScenarioStubs(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
 	response, err := c.getScenarioStubs("scenario1")
 	resp := string(response)
 	// fmt.Println(strings.Contains(resp, "data"))
 	// fmt.Println(len(response))
-	expect(t, len(response), 51)
+	expect(t, len(response), 52)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestGetDelayPolicy(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"policy": "policy_1"}]}`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.getDelayPolicy("policy_1")
+	resp := string(response)
+	// fmt.Println(strings.Contains(resp, "data"))
+	// fmt.Println(len(response))
+	expect(t, len(response), 53)
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
 }
