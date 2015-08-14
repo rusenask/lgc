@@ -82,7 +82,7 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
-func makeRequest(s params) ([]byte, error) {
+func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
 	fmt.Println("URL transformed to: ", url)
 	fmt.Println("Body: ", s.body)
@@ -90,8 +90,7 @@ func makeRequest(s params) ([]byte, error) {
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return []byte(""), err
 	}
