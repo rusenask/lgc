@@ -40,14 +40,14 @@ func (c *Client) getAllDelayPolicies() ([]byte, error) {
 
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
-func beginSession(session, scenario, mode string) ([]byte, error) {
+func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
 	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
 func createScenario(scenario string) ([]byte, error) {
