@@ -17,8 +17,8 @@ type Configuration struct {
 	LgcProxyPort string
 }
 
-// StublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
-func StublistHandler(w http.ResponseWriter, r *http.Request) {
+// stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
+func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
 		fmt.Println("got:", r.URL.Query())
@@ -32,9 +32,9 @@ func StublistHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetDelayPolicyHandler - returns delay policy information, list all if
+// getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
-func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	if ok {
 		// name provided so looking for specific delay
@@ -52,7 +52,7 @@ func GetDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func BeginSessionHandler(w http.ResponseWriter, r *http.Request) {
+func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
 	fmt.Println(queryArgs)
 }
@@ -68,8 +68,9 @@ func main() {
 	}
 
 	mux := bone.New()
-	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(StublistHandler))
-	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(GetDelayPolicyHandler))
+	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
+	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
+	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
