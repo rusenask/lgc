@@ -137,11 +137,13 @@ func main() {
 	// getting configuration
 	file, _ := os.Open("conf.json")
 	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
-	err := decoder.Decode(&configuration)
+	StuboConfig = Configuration{}
+	err := decoder.Decode(&StuboConfig)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+	// assign StuboURI
+	StuboURI = StuboConfig.StuboProtocol + "://" + StuboConfig.StuboHost + ":" + StuboConfig.StuboPort
 
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
