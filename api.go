@@ -8,7 +8,7 @@ import (
 )
 
 type params struct {
-	url, body, method string
+	path, body, method string
 }
 
 // getStubList calls to Stubo's REST API
