@@ -33,10 +33,9 @@ func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
-func getAllDelayPolicies() ([]byte, error) {
+func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/detail"
-	client := &Client{&http.Client{}}
-	return client.GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
