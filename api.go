@@ -19,11 +19,10 @@ type Client struct {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func getScenarioStubs(scenario string) ([]byte, error) {
+func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 	fmt.Println(StuboConfig.StuboHost)
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	client := &Client{&http.Client{}}
-	return client.GetResponseBody(path)
+	return c.GetResponseBody(path)
 }
 
 // getDelayPolicy gets specified delay-policy
