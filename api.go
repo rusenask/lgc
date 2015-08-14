@@ -14,7 +14,7 @@ type params struct {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func getStubList(scenario string) []byte {
+func getStubList(scenario string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
 	return GetJSONResponse(url)
 }
@@ -22,12 +22,12 @@ func getStubList(scenario string) []byte {
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
-func getDelayPolicy(name string) []byte {
+func getDelayPolicy(name string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/objects/" + name
 	return GetJSONResponse(url)
 }
 
-func getAllDelayPolicies() []byte {
+func getAllDelayPolicies() ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/delay-policy/detail"
 	return GetJSONResponse(url)
 }
@@ -40,7 +40,11 @@ func getAllDelayPolicies() []byte {
 //
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSession(session, scenario, mode string) []byte {
-	// create scenario
+	// begin session
+	return []byte("nothing yet")
+}
+
+func createScenario(scenario string) []byte {
 	url := "http://localhost:8001/stubo/api/v2/scenarios"
 	var s params
 	s.body = "{'scenario':" + scenario + " }"
