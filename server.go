@@ -115,6 +115,18 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getScenarios(w http.ResponseWriter, r *http.Request) {
+	response, err := getScenariosDetail()
+	// checking whether we got good response
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+	// setting resposne header
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
+
+}
+
 func main() {
 	// getting configuration
 	file, _ := os.Open("conf.json")
@@ -130,6 +142,7 @@ func main() {
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
 	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
+	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenarios))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
