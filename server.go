@@ -73,7 +73,13 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if scenario, ok := queryArgs["scenario"]; ok {
 		if session, ok := queryArgs["session"]; ok {
 			if mode, ok := queryArgs["mode"]; ok {
+				// create scenario
 				_, err := createScenario(scenario[0])
+				if err != nil {
+					http.Error(w, err.Error(), 500)
+				}
+				// begin session
+				_, err = beginSession(session[0], scenario[0], mode[0])
 				if err != nil {
 					http.Error(w, err.Error(), 500)
 				}
