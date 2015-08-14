@@ -32,9 +32,14 @@ func getAllDelayPolicies() ([]byte, error) {
 	return GetJSONResponse(url)
 }
 
-func beginSession(session, scenario, mode string) []byte {
-	// begin session
-	return []byte("nothing yet")
+func beginSession(session, scenario, mode string) ([]byte, error) {
+	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/action"
+	var s params
+	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
+	fmt.Println("formated body for session begin: ", s.body)
+	s.url = url
+	s.method = "POST"
+	return makeRequest(s)
 }
 
 func createScenario(scenario string) ([]byte, error) {
