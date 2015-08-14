@@ -142,6 +142,11 @@ func main() {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+	// looking for option args when starting App
+	// like ./lgc -port=":3000" would start on port 3000
+	var port = flag.String("port", ":3000", "Server port")
+	flag.Parse() // parse the flag
+
 	// assign StuboURI
 	StuboURI = StuboConfig.StuboProtocol + "://" + StuboConfig.StuboHost + ":" + StuboConfig.StuboPort
 
