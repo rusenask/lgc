@@ -108,10 +108,10 @@ func makeRequest(s params) ([]byte, error) {
 }
 
 // GetResponseBody calls stubo
-func (m *Client) GetResponseBody(path string) ([]byte, error) {
+func (c *Client) GetResponseBody(path string) ([]byte, error) {
 	url := StuboURI + path
 	fmt.Println("Transformed to: ", url)
-	resp, err := m.HTTPClient.Get(url)
+	resp, err := c.HTTPClient.Get(url)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return []byte(""), err
