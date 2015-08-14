@@ -32,6 +32,8 @@ func getAllDelayPolicies() ([]byte, error) {
 	return GetJSONResponse(url)
 }
 
+// beginSession takes session, scenario, mode parameters. Can either
+// set playback or record modes
 func beginSession(session, scenario, mode string) ([]byte, error) {
 	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
