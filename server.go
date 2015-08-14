@@ -95,7 +95,24 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Bad request, missing scenario name.", 400)
 	}
+}
 
+func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+	scenario, ok := r.URL.Query()["scenario"]
+	if ok {
+		fmt.Println("got:", r.URL.Query())
+		// expecting one param - scenario
+		response, err := endSessions(scenario[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		http.Error(w, "Scenario name not provided.", 400)
+	}
 }
 
 func main() {
@@ -112,6 +129,7 @@ func main() {
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
+	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	n.Run(":3000")
