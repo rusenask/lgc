@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -37,17 +38,19 @@ func testTools(code int, body string) (*httptest.Server, *Client) {
 	httpClient := &http.Client{Transport: tr}
 
 	client := &Client{httpClient}
+	StuboURI = "http://localhost:3000"
 	return server, client
 }
 
 func TestGetScenarios(t *testing.T) {
-	server, c := testTools(200, `{"version":"1.2.3","data": [{"name","scenario1"}]}`)
+	testData := `{"version":"1.2.3","data": [{"name","scenario1"}]}`
+	server, c := testTools(200, testData)
 	defer server.Close()
-	responses, err := c.getScenarioStubs("scenario1")
-
-	expect(t, len(responses), 1)
+	response, err := c.getScenarioStubs("scenario1")
+	resp := string(response)
+	// fmt.Println(strings.Contains(resp, "data"))
+	// fmt.Println(len(response))
+	expect(t, len(response), 51)
+	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
-
-	correctResponse := `{"version":"1.2.3","data": [{"name","scenario1"}]}`
-	expect(t, reflect.DeepEqual(correctResponse, responses[0]), true)
 }
