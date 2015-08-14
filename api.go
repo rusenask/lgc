@@ -72,14 +72,14 @@ func (c *Client) getScenarios() ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
-func endSessions(scenario string) ([]byte, error) {
+func (c *Client) endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
 	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
-	return makeRequest(s)
+	return c.makeRequest(s)
 }
 
 func makeRequest(s params) ([]byte, error) {
