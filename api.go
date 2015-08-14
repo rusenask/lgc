@@ -15,57 +15,58 @@ type params struct {
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
 func getStubList(scenario string) ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return GetResponseBody(url)
+	fmt.Println(StuboConfig.StuboHost)
+	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+	return GetResponseBody(path)
 }
 
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
 func getDelayPolicy(name string) ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/delay-policy/objects/" + name
-	return GetResponseBody(url)
+	path := "/stubo/api/v2/delay-policy/objects/" + name
+	return GetResponseBody(path)
 }
 
 func getAllDelayPolicies() ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/delay-policy/detail"
-	return GetResponseBody(url)
+	path := "/stubo/api/v2/delay-policy/detail"
+	return GetResponseBody(path)
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
 func beginSession(session, scenario, mode string) ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/action"
+	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
 	fmt.Println("formated body for session begin: ", s.body)
-	s.url = url
+	s.path = path
 	s.method = "POST"
 	return makeRequest(s)
 }
 
 func createScenario(scenario string) ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/scenarios"
+	path := "/stubo/api/v2/scenarios"
 	var s params
 	s.body = `{"scenario": "` + scenario + `"}`
 	fmt.Println("formated body: ", s.body)
-	s.url = url
+	s.path = path
 	s.method = "PUT"
 	return makeRequest(s)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
 func getScenariosDetail() ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/scenarios/detail"
+	url := StuboURI + "/stubo/api/v2/scenarios/detail"
 	return GetResponseBody(url)
 }
 
 func endSessions(scenario string) ([]byte, error) {
-	url := "http://localhost:8001/stubo/api/v2/scenarios/objects/" + scenario + "/action"
+	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
 	fmt.Println("formated body for session begin: ", s.body)
-	s.url = url
+	s.path = path
 	s.method = "POST"
 	return makeRequest(s)
 }
