@@ -61,6 +61,12 @@ func getScenariosDetail() ([]byte, error) {
 	return GetResponseBody(url)
 }
 
+// getScenariosDetail gets and returns all scenarios with details
+func getScenarios() ([]byte, error) {
+	url := "/stubo/api/v2/scenarios"
+	return GetResponseBody(url)
+}
+
 func endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
