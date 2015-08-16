@@ -74,3 +74,15 @@ func TestGetAllDelayPolicies(t *testing.T) {
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
 }
+
+func TestBeginSession(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.beginSession("session", "scenario", "record")
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
