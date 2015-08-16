@@ -119,3 +119,14 @@ func TestGetScenarios(t *testing.T) {
 	expect(t, err, nil)
 }
 
+func TestEndSessions(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	response, err := c.endSessions("scenario")
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
