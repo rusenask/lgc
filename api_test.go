@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -37,17 +38,123 @@ func testTools(code int, body string) (*httptest.Server, *Client) {
 	httpClient := &http.Client{Transport: tr}
 
 	client := &Client{httpClient}
+	StuboURI = "http://localhost:3000"
 	return server, client
 }
 
-func TestGetScenarios(t *testing.T) {
-	server, c := testTools(200, `{"version":"1.2.3","data": [{"name","scenario1"}]}`)
+func TestGetScenarioStubs(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
+	server, c := testTools(200, testData)
 	defer server.Close()
-	responses, err := c.getScenarioStubs("scenario1")
-
-	expect(t, len(responses), 1)
+	response, err := c.getScenarioStubs("scenario1")
+	resp := string(response)
+	expect(t, len(response), 52)
+	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
+}
 
-	correctResponse := `{"version":"1.2.3","data": [{"name","scenario1"}]}`
-	expect(t, reflect.DeepEqual(correctResponse, responses[0]), true)
+func TestGetDelayPolicy(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"policy": "policy_1"}]}`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.getDelayPolicy("policy_1")
+	resp := string(response)
+	expect(t, len(response), 53)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestGetAllDelayPolicies(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.getAllDelayPolicies()
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestBeginSession(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.beginSession("session", "scenario", "record")
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestCreateScenario(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	response, err := c.createScenario("scenario_1")
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestGetScenariosDetail(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	response, err := c.getScenariosDetail()
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestGetScenarios(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	response, err := c.getScenarios()
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestEndSessions(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	response, err := c.endSessions("scenario")
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestMakeRequest(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	// prepare struct
+	path := "/stubo/api/v2/scenarios/objects/some_scenario/action"
+	var s params
+	s.body = `{"end": "sessions"}`
+	s.path = path
+	s.method = "POST"
+	response, err := c.makeRequest(s)
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestMakeRequestFail(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	// prepare struct
+	// path := "/stubo/api/v2/scenarios/objects/some_scenario/action"
+	var s params
+	StuboURI = "malformed url"
+	_, err := c.makeRequest(s)
+	refute(t, err, nil)
 }

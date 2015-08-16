@@ -72,6 +72,7 @@ func (c *Client) getScenarios() ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
+// endSessions ends all specified scenario sessions
 func (c *Client) endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
