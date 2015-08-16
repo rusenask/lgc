@@ -130,3 +130,19 @@ func TestEndSessions(t *testing.T) {
 	expect(t, err, nil)
 }
 
+func TestMakeRequest(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	// prepare struct
+	path := "/stubo/api/v2/scenarios/objects/some_scenario/action"
+	var s params
+	s.body = `{"end": "sessions"}`
+	s.path = path
+	s.method = "POST"
+	response, err := c.makeRequest(s)
+	resp := string(response)
+	expect(t, len(response), 45)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
