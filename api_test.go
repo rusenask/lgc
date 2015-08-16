@@ -146,3 +146,15 @@ func TestMakeRequest(t *testing.T) {
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
 }
+
+func TestMakeRequestFail(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(201, testData)
+	defer server.Close()
+	// prepare struct
+	// path := "/stubo/api/v2/scenarios/objects/some_scenario/action"
+	var s params
+	StuboURI = "malformed url"
+	_, err := c.makeRequest(s)
+	refute(t, err, nil)
+}
