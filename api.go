@@ -79,9 +79,12 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
-func (c *Client) getDelayPolicy(name string) ([]byte, error) {
-	path := "/stubo/api/v2/delay-policy/objects/" + name
-	return c.GetResponseBody(path)
+func (c *Client) getDelayPolicy(p APIParams) ([]byte, error) {
+	if p.name != "" {
+		path := "/stubo/api/v2/delay-policy/objects/" + p.name
+		return c.GetResponseBody(path)
+	}
+	return []byte(""), errors.New("api.getDelayPolicy error: delay policy name supplied")
 }
 
 func (c *Client) getAllDelayPolicies() ([]byte, error) {

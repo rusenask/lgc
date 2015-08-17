@@ -38,10 +38,10 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		client := &Client{&http.Client{}}
-		var data APIParams
+		var p APIParams
 		// expecting one param - scenario
-		data.name = scenario[0]
-		response, err := client.getScenarioStubs(data)
+		p.name = scenario[0]
+		response, err := client.getScenarioStubs(p)
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -61,17 +61,17 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		// expecting one param - scenario
 		client := &Client{&http.Client{}}
-		var data APIParams
-		data.name = scenario[0]
+		var p APIParams
+		p.name = scenario[0]
 		force, ok := r.URL.Query()["force"]
 		if ok {
-			data.force = force[0]
+			p.force = force[0]
 		}
 		host, ok := r.URL.Query()["host"]
 		if ok {
-			data.targetHost = host[0]
+			p.targetHost = host[0]
 		}
-		response, err := client.deleteScenarioStubs(data)
+		response, err := client.deleteScenarioStubs(p)
 		// checking whether we got good response
 		httperror(w, err)
 		// setting resposne header
@@ -91,8 +91,9 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-
-		response, err := client.getDelayPolicy(name[0])
+		var p APIParams
+		p.name = name[0]
+		response, err := client.getDelayPolicy(p)
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
