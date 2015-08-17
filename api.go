@@ -65,15 +65,20 @@ func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
 		return []byte(""), err
 	}
 	// Unmarshaling JSON
-	var data ResponseData
+	var data DelayPolicyResponse
 	err = json.Unmarshal(allDelayPolicies, &data)
 	fmt.Println(data)
+	if err != nil {
+		return []byte(""), err
+	}
+	// Getting stubo version
+	version := data.Version
+	fmt.Println("Stubo version: ", version)
 	for _, dp := range data.Data {
 		fmt.Println(dp.Name)
+		// c.deleteDelayPolicy(dp.Name)
 	}
-	if err != nil {
-		fmt.Println("error occured")
-	}
+
 	return []byte(""), nil
 }
 
