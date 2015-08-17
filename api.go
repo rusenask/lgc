@@ -16,24 +16,6 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// DelayPolicy structure for gettting delay policy references
-type DelayPolicy struct {
-	Name string `json:"name"`
-	Ref  string `json:"delayPolicyRef"`
-}
-
-// DelayPolicyResponse structure for unmarshaling JSON structures from API v2
-type DelayPolicyResponse struct {
-	Data    []DelayPolicy `json:"data"`
-	Version string        `json:"version"`
-}
-
-// ResponseToClient is a helper struct for artificially forming responses to clients
-type ResponseToClient struct {
-	Version string
-	Data    map[string]string
-}
-
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
