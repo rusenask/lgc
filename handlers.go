@@ -22,8 +22,8 @@ type DelayPolicyResponse struct {
 
 // ResponseToClient is a helper struct for artificially forming responses to clients
 type ResponseToClient struct {
-	Version string
-	Data    map[string]string
+	Version string            `json:"data"`
+	Data    map[string]string `json:"version"`
 }
 
 func httperror(w http.ResponseWriter, err error) {
