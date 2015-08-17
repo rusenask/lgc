@@ -55,7 +55,9 @@ Would change it to this port. Remember to change your original stubo instance po
     + name provided - __implemented__
     + name not provided (should delete all delay policies) - __implemented__
 * get/response - not present in API v2
-* delete/stubs - not implemented
+* delete/stubs:
+    + host provided - __implemented__
+    + force provided - __implemented__
 * get/export - not implemented
 * get/stubcount - not implemented
 * put/module - not present in API v2
