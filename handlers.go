@@ -37,9 +37,11 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
 		fmt.Println("got:", r.URL.Query())
-		// expecting one param - scenario
 		client := &Client{&http.Client{}}
-		response, err := client.getScenarioStubs(scenario[0])
+		var data APIParams
+		// expecting one param - scenario
+		data.name = scenario[0]
+		response, err := client.getScenarioStubs(data)
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
