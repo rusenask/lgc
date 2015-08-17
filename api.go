@@ -81,11 +81,13 @@ func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
 	// Getting stubo version
 	version := data.Version
 	fmt.Println("Stubo version: ", version)
+	var responses []string
 	for _, dp := range data.Data {
 		fmt.Println(dp.Name)
-		// c.deleteDelayPolicy(dp.Name)
+		responses = append(responses, dp.Name)
+		// c.deleteDelayPolicy(dp.Ref)
 	}
-
+	fmt.Println(responses)
 	return []byte(""), nil
 }
 
