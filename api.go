@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -32,7 +31,7 @@ type DelayPolicyResponse struct {
 // ResponseToClient is a helper struct for artificially forming responses to clients
 type ResponseToClient struct {
 	Version string
-	Data    string
+	Data    map[string]string
 }
 
 // getStubList calls to Stubo's REST API
@@ -63,32 +62,6 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 	s.path = path
 	s.method = "DELETE"
 	return c.makeRequest(s)
-}
-
-func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
-	// getting all delay policy names
-	allDelayPolicies, err := c.getAllDelayPolicies()
-	if err != nil {
-		return []byte(""), err
-	}
-	// Unmarshaling JSON
-	var data DelayPolicyResponse
-	err = json.Unmarshal(allDelayPolicies, &data)
-	fmt.Println(data)
-	if err != nil {
-		return []byte(""), err
-	}
-	// Getting stubo version
-	version := data.Version
-	fmt.Println("Stubo version: ", version)
-	var responses []string
-	for _, dp := range data.Data {
-		fmt.Println(dp.Name)
-		responses = append(responses, dp.Name)
-		// c.deleteDelayPolicy(dp.Ref)
-	}
-	fmt.Println(responses)
-	return []byte(""), nil
 }
 
 // beginSession takes session, scenario, mode parameters. Can either
