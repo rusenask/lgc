@@ -8,6 +8,24 @@ import (
 	"strings"
 )
 
+// DelayPolicy structure for gettting delay policy references
+type DelayPolicy struct {
+	Name string `json:"name"`
+	Ref  string `json:"delayPolicyRef"`
+}
+
+// DelayPolicyResponse structure for unmarshaling JSON structures from API v2
+type DelayPolicyResponse struct {
+	Data    []DelayPolicy `json:"data"`
+	Version string        `json:"version"`
+}
+
+// ResponseToClient is a helper struct for artificially forming responses to clients
+type ResponseToClient struct {
+	Version string
+	Data    map[string]string
+}
+
 func httperror(w http.ResponseWriter, err error) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
