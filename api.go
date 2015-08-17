@@ -19,7 +19,7 @@ type APIParams struct {
 	name, targetHost, force string
 }
 
-// Client structure to be used by HTTP
+// Client structure to be injected into functions to perform HTTP calls
 type Client struct {
 	HTTPClient *http.Client
 }
@@ -41,10 +41,12 @@ func New(text string) error {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
-	fmt.Println(StuboConfig.StuboHost)
-	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return c.GetResponseBody(path)
+func (c *Client) getScenarioStubs(p APIParams) ([]byte, error) {
+	if p.name != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + p.name + "/stubs"
+		return c.GetResponseBody(path)
+	}
+	return []byte(""), errors.New("api.getScenarioStubs error: scenario name not supplied")
 }
 
 // deleteScenarioStubs takes apiParams as an argument which contains
