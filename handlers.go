@@ -97,36 +97,35 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		fmt.Println("Deleting all delay policies")
-		response, err := client.deleteAllDelayPolicies()
-
+		delayPolicies, err := client.getAllDelayPolicies()
 		httperror(w, err)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(response)
-		// http.Error(w, "Delay policy name not provided.", 400)
+		if err == nil {
+			response, err := client.deleteAllDelayPolicies(delayPolicies)
+			httperror(w, err)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
+		}
 	}
 }
 
 // deleteAllDelayPolicies - custom handler to delete multiple delay policies.
-// This API call is not directly available through API v2 so we are combining
-// several calls to API to get a list of all available delay policies
+// This API call is not directly available through API v2 so we are taking
+// response with all delay policies - unmarshalling it, getting all names
 // and then deleting them one by one
-func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
+func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// getting all delay policy names
-	allDelayPolicies, err := c.getAllDelayPolicies()
-	if err != nil {
-		return []byte(""), err
-	}
+	allDelayPolicies := dp
 	// Unmarshaling JSON
 	var data DelayPolicyResponse
-	err = json.Unmarshal(allDelayPolicies, &data)
+	err := json.Unmarshal(allDelayPolicies, &data)
 	fmt.Println(data)
 	if err != nil {
 		return []byte(""), err
 	}
 	// Getting stubo version
 	version := data.Version
-	fmt.Println("Stubo version: ", version)
+
+	// Deleting delay policies
 	var responses []string
 	for _, dp := range data.Data {
 		_, err := c.deleteDelayPolicy(dp.Name)
@@ -143,8 +142,8 @@ func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
 		Data:    map[string]string{"message": message},
 	}
 	// encoding to JSON and returning
-	resB, err := json.Marshal(res)
-	return resB, err
+	respBytes, err := json.Marshal(res)
+	return respBytes, err
 }
 
 // begin/session (GET, POST)
