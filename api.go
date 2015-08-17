@@ -13,7 +13,9 @@ type params struct {
 	headers            map[string]string
 }
 
-type apiParams struct {
+// APIParams struct is used to pass parameters to API functions such as
+// resource name, host, etc..
+type APIParams struct {
 	name, targetHost, force string
 }
 
@@ -49,7 +51,7 @@ func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 // scenario name and two optional parameters for headers:
 // "force" which defaults to false and "targetHost" which can specify another
 // host
-func (c *Client) deleteScenarioStubs(p apiParams) ([]byte, error) {
+func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 	var s params
 	// adding path
 	if p.name != "" {
@@ -69,7 +71,7 @@ func (c *Client) deleteScenarioStubs(p apiParams) ([]byte, error) {
 		// calling delete
 		return c.makeRequest(s)
 	}
-	return []byte(""), ErrMissingParams
+	return []byte(""), errors.New("api.deleteScenarioStubs error: scenario name not supplied")
 }
 
 // getDelayPolicy gets specified delay-policy
