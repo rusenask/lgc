@@ -105,8 +105,44 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		// http.Error(w, "Delay policy name not provided.", 400)
 	}
-	// setting resposne header
+}
 
+// deleteAllDelayPolicies - custom handler to delete multiple delay policies.
+// This API call is not directly available through API v2 so we are combining
+// several calls to API to get a list of all available delay policies
+// and then deleting them one by one
+func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
+	// getting all delay policy names
+	allDelayPolicies, err := c.getAllDelayPolicies()
+	if err != nil {
+		return []byte(""), err
+	}
+	// Unmarshaling JSON
+	var data DelayPolicyResponse
+	err = json.Unmarshal(allDelayPolicies, &data)
+	fmt.Println(data)
+	if err != nil {
+		return []byte(""), err
+	}
+	// Getting stubo version
+	version := data.Version
+	fmt.Println("Stubo version: ", version)
+	var responses []string
+	for _, dp := range data.Data {
+		fmt.Println(dp.Name)
+		responses = append(responses, dp.Name)
+		// c.deleteDelayPolicy(dp.Ref)
+	}
+	fmt.Println(responses)
+	var message string
+	message = "Deleted " + string(len(responses)) + "delay policies: " + strings.Join(responses, " ")
+	res := &ResponseToClient{
+		Version: version,
+		Data:    map[string]string{"message": message},
+	}
+	fmt.Println(res)
+	resB, _ := json.Marshal(res)
+	return resB, nil
 }
 
 // begin/session (GET, POST)
@@ -172,42 +208,4 @@ func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
 
-}
-
-// deleteAllDelayPolicies - custom handler to delete multiple delay policies.
-// This API call is not directly available through API v2 so we are combining
-// several calls to API to get a list of all available delay policies
-// and then deleting them one by one
-func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
-	// getting all delay policy names
-	allDelayPolicies, err := c.getAllDelayPolicies()
-	if err != nil {
-		return []byte(""), err
-	}
-	// Unmarshaling JSON
-	var data DelayPolicyResponse
-	err = json.Unmarshal(allDelayPolicies, &data)
-	fmt.Println(data)
-	if err != nil {
-		return []byte(""), err
-	}
-	// Getting stubo version
-	version := data.Version
-	fmt.Println("Stubo version: ", version)
-	var responses []string
-	for _, dp := range data.Data {
-		fmt.Println(dp.Name)
-		responses = append(responses, dp.Name)
-		// c.deleteDelayPolicy(dp.Ref)
-	}
-	fmt.Println(responses)
-	var message string
-	message = "Deleted " + string(len(responses)) + "delay policies: " + strings.Join(responses, " ")
-	res := &ResponseToClient{
-		Version: version,
-		Data:    map[string]string{"message": message},
-	}
-	fmt.Println(res)
-	resB, _ := json.Marshal(res)
-	return resB, nil
 }
