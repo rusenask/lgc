@@ -180,6 +180,7 @@ func main() {
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
+	mux.Get("/stubo/api/delete/delay_policy", http.HandlerFunc(deleteDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
 	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
 	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenariosHandler))
