@@ -129,20 +129,22 @@ func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
 	fmt.Println("Stubo version: ", version)
 	var responses []string
 	for _, dp := range data.Data {
-		fmt.Println(dp.Name)
-		responses = append(responses, dp.Name)
-		// c.deleteDelayPolicy(dp.Ref)
+		_, err := c.deleteDelayPolicy(dp.Name)
+		if err == nil {
+			responses = append(responses, dp.Name)
+		}
 	}
-	fmt.Println(responses)
-	var message string
-	message = "Deleted " + string(len(responses)) + "delay policies: " + strings.Join(responses, " ")
+	// creating message for the client
+	message := fmt.Sprintf("Deleted %d delay policies: ", len(responses)) + strings.Join(responses, " ")
+
+	// creating structure for the response
 	res := &ResponseToClient{
 		Version: version,
 		Data:    map[string]string{"message": message},
 	}
-	fmt.Println(res)
-	resB, _ := json.Marshal(res)
-	return resB, nil
+	// encoding to JSON and returning
+	resB, err := json.Marshal(res)
+	return resB, err
 }
 
 // begin/session (GET, POST)
