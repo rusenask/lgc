@@ -9,6 +9,11 @@ import (
 
 type params struct {
 	path, body, method string
+	headers            map[string]string
+}
+
+type apiParams struct {
+	name, targetHost, force string
 }
 
 // Client structure to be used by HTTP
