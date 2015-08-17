@@ -19,7 +19,8 @@ type Client struct {
 
 // DelayPolicy structure for gettting delay policy references
 type DelayPolicy struct {
-	Name string `json:"delayPolicyRef"`
+	Name string `json:"name"`
+	Ref  string `json:"delayPolicyRef"`
 }
 
 // DelayPolicyResponse structure for unmarshaling JSON structures from API v2
