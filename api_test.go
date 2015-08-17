@@ -46,7 +46,9 @@ func TestGetScenarioStubs(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	response, err := c.getScenarioStubs("scenario1")
+	var data APIParams
+	data.name = "scenario_1"
+	response, err := c.getScenarioStubs(data)
 	resp := string(response)
 	expect(t, len(response), 52)
 	expect(t, strings.Contains(resp, "data"), true)
