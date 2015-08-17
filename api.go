@@ -54,6 +54,25 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
+func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
+	// getting all delay policy names
+	allDelayPolicies, err := c.getAllDelayPolicies()
+	if err != nil {
+		return []byte(""), err
+	}
+	// Unmarshaling JSON
+	var data ResponseData
+	err = json.Unmarshal(allDelayPolicies, &data)
+	fmt.Println(data)
+	for _, dp := range data.Data {
+		fmt.Println(dp.Name)
+	}
+	if err != nil {
+		fmt.Println("error occured")
+	}
+	return []byte(""), nil
+}
+
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
 func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
