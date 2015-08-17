@@ -52,6 +52,32 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
+	scenario, ok := r.URL.Query()["scenario"]
+	if ok {
+		// expecting one param - scenario
+		client := &Client{&http.Client{}}
+		var data apiParams
+		data.name = scenario[0]
+		force, ok := r.URL.Query()["force"]
+		if ok {
+			data.force = force[0]
+		}
+		host, ok := r.URL.Query()["host"]
+		if ok {
+			data.targetHost = host[0]
+		}
+		response, err := client.deleteScenarioStubs(data)
+		// checking whether we got good response
+		httperror(w, err)
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		http.Error(w, "Scenario name not provided.", 400)
+	}
+}
+
 // getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
 func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
