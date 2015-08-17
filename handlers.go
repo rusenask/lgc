@@ -52,12 +52,14 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// deleteStubsHandler deletes scenario stubs, e.g.: stubo/api/delete/stubs?scenario=first
+// optional arguments host=your_host, force=true/false (defaults to false)
 func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
 		// expecting one param - scenario
 		client := &Client{&http.Client{}}
-		var data apiParams
+		var data APIParams
 		data.name = scenario[0]
 		force, ok := r.URL.Query()["force"]
 		if ok {

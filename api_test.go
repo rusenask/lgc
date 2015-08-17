@@ -57,7 +57,7 @@ func TestDeleteScenarioStubs(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	var data apiParams
+	var data APIParams
 	data.name = "scenario_1"
 	data.force = "true"
 	data.targetHost = "somehost"
@@ -72,11 +72,9 @@ func TestDeleteScenarioStubsFail(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	var data apiParams
+	var data APIParams
 	_, err := c.deleteScenarioStubs(data)
-	if err != ErrMissingParams {
-		t.Error("api.deleteScenarioStubs should return ErrMissingParams when no name is supplied ")
-	}
+	refute(t, err, nil)
 }
 
 func TestGetDelayPolicy(t *testing.T) {
