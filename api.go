@@ -38,6 +38,14 @@ func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
+func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
+	path := "/stubo/api/v2/delay-policy/objects/" + name
+	var s params
+	s.path = path
+	s.method = "DELETE"
+	return c.makeRequest(s)
+}
+
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
 func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
