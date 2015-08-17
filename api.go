@@ -29,6 +29,12 @@ type DelayPolicyResponse struct {
 	Version string        `json:"version"`
 }
 
+// ResponseToClient is a helper struct for artificially forming responses to clients
+type ResponseToClient struct {
+	Version string
+	Data    string
+}
+
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
