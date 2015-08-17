@@ -16,6 +16,14 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+type DelayPolicy struct {
+	Name string `json:"delayPolicyRef"`
+}
+
+type ResponseData struct {
+	Data []DelayPolicy `json:"data"`
+}
+
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
