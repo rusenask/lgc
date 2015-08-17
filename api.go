@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,6 +21,9 @@ type apiParams struct {
 type Client struct {
 	HTTPClient *http.Client
 }
+
+// ErrMissingParams is the error when there are missing parameters
+var ErrMissingParams = errors.New("api: Unable to perform operation due to missing parameters")
 
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
