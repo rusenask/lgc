@@ -53,6 +53,20 @@ func TestGetScenarioStubs(t *testing.T) {
 	expect(t, err, nil)
 }
 
+func TestDeleteScenarioStubs(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	var data apiParams
+	data.name = "scenario_1"
+	data.force = "true"
+	data.targetHost = "somehost"
+	response, err := c.deleteScenarioStubs(data)
+	resp := string(response)
+	expect(t, len(response), 52)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
 func TestGetDelayPolicy(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"policy": "policy_1"}]}`
 	server, c := testTools(200, testData)
