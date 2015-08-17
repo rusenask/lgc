@@ -22,8 +22,19 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// ErrMissingParams is the error when there are missing parameters
-var ErrMissingParams = errors.New("api: Unable to perform operation due to missing parameters")
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+
+// New returns an error that formats as the given text.
+func New(text string) error {
+	return &errorString{text}
+}
 
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
