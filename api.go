@@ -30,6 +30,30 @@ func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
+// deleteScenarioStubs takes apiParams as an argument which contains
+// scenario name and two optional parameters for headers:
+// "force" which defaults to false and "targetHost" which can specify another
+// host
+func (c *Client) deleteScenarioStubs(p apiParams) ([]byte, error) {
+	var s params
+	// adding path
+	path := "/stubo/api/v2/scenarios/objects/" + p.name + "/stubs"
+	s.path = path
+	// creating MAP for headers
+	headers := make(map[string]string)
+	if p.force != "" {
+		headers["force"] = p.force
+	}
+	if p.targetHost != "" {
+		headers["target_host"] = p.targetHost
+	}
+	s.headers = headers
+	s.method = "DELETE"
+	fmt.Println(s.headers)
+	// calling delete
+	return c.makeRequest(s)
+}
+
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
