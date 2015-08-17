@@ -17,12 +17,15 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+// DelayPolicy structure for gettting delay policy references
 type DelayPolicy struct {
 	Name string `json:"delayPolicyRef"`
 }
 
-type ResponseData struct {
-	Data []DelayPolicy `json:"data"`
+// DelayPolicyResponse structure for unmarshaling JSON structures from API v2
+type DelayPolicyResponse struct {
+	Data    []DelayPolicy `json:"data"`
+	Version string        `json:"version"`
 }
 
 // getStubList calls to Stubo's REST API
