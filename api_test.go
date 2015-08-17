@@ -83,7 +83,9 @@ func TestGetDelayPolicy(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"policy": "policy_1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	response, err := c.getDelayPolicy("policy_1")
+	var p APIParams
+	p.name = "scenario_1"
+	response, err := c.getDelayPolicy(p)
 	resp := string(response)
 	expect(t, len(response), 53)
 	expect(t, strings.Contains(resp, "data"), true)
