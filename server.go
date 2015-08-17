@@ -25,6 +25,12 @@ var StuboConfig Configuration
 // StuboURI stores URI (e.g. "http://localhost:8001")
 var StuboURI string
 
+func httperror(w http.ResponseWriter, err error) {
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+}
+
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
