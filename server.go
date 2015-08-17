@@ -75,6 +75,26 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// deleteDelayPolicyHandler - deletes delay policy
+// stubo/api/delete/delay_policy?name=slow
+func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+	name, ok := r.URL.Query()["name"]
+	if ok {
+		client := &Client{&http.Client{}}
+		// expecting one param - name
+		response, err := client.deleteDelayPolicy(name[0])
+		// checking whether we got good response
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		http.Error(w, "Delay policy name not provided.", 400)
+	}
+}
+
 // begin/session (GET, POST)
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
