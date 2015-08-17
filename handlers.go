@@ -38,10 +38,8 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println("got:", r.URL.Query())
 		client := &Client{&http.Client{}}
-		var p APIParams
 		// expecting one param - scenario
-		p.name = scenario[0]
-		response, err := client.getScenarioStubs(p)
+		response, err := client.getScenarioStubs(scenario[0])
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -91,9 +89,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-		var p APIParams
-		p.name = name[0]
-		response, err := client.getDelayPolicy(p)
+		response, err := client.getDelayPolicy(name[0])
 		// checking whether we got good response
 		if err != nil {
 			http.Error(w, err.Error(), 500)

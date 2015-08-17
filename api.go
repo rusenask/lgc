@@ -13,8 +13,8 @@ type params struct {
 	headers            map[string]string
 }
 
-// APIParams struct is used to pass parameters to API functions such as
-// resource name, host, etc..
+// APIParams struct is used to pass parameters to more complex
+// API functions such as resource name, host, etc..
 type APIParams struct {
 	name, targetHost, force string
 }
@@ -41,9 +41,9 @@ func New(text string) error {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func (c *Client) getScenarioStubs(p APIParams) ([]byte, error) {
-	if p.name != "" {
-		path := "/stubo/api/v2/scenarios/objects/" + p.name + "/stubs"
+func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
+	if scenario != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getScenarioStubs error: scenario name not supplied")
@@ -79,9 +79,9 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
-func (c *Client) getDelayPolicy(p APIParams) ([]byte, error) {
-	if p.name != "" {
-		path := "/stubo/api/v2/delay-policy/objects/" + p.name
+func (c *Client) getDelayPolicy(name string) ([]byte, error) {
+	if name != "" {
+		path := "/stubo/api/v2/delay-policy/objects/" + name
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getDelayPolicy error: delay policy name supplied")
