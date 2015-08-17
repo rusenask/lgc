@@ -126,6 +126,11 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
+	if s.headers != nil {
+		for k, v := range s.headers {
+			req.Header.Set(k, v)
+		}
+	}
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.HTTPClient.Do(req)
