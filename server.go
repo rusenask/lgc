@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/go-zoo/bone"
 )
@@ -25,6 +26,12 @@ var StuboConfig Configuration
 var StuboURI string
 
 func main() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stderr instead of stdout, could also be a file.
+	log.SetOutput(os.Stderr)
+
 	// getting configuration
 	file, _ := os.Open("conf.json")
 	decoder := json.NewDecoder(file)
@@ -40,6 +47,13 @@ func main() {
 
 	// assign StuboURI
 	StuboURI = StuboConfig.StuboProtocol + "://" + StuboConfig.StuboHost + ":" + StuboConfig.StuboPort
+
+	log.WithFields(log.Fields{
+		"StuboHost": StuboConfig.StuboHost,
+		"StuboPort": StuboConfig.StuboPort,
+		"StuboURI":  StuboURI,
+		"ProxyPort": port,
+	}).Info("LGC is starting")
 
 	mux := bone.New()
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
