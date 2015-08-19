@@ -149,9 +149,18 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 
 func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
-	fmt.Println("URL transformed to: ", url)
-	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
+
+	// logging get transformation
+	method := trace()
+	log.WithFields(log.Fields{
+		"method":        method,
+		"url":           url,
+		"body":          s.body,
+		"headers":       s.headers,
+		"requestMethod": s.method,
+	}).Info("Transforming URL, preparing for request to Stubo")
+
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
 	if s.headers != nil {
 		for k, v := range s.headers {
