@@ -22,15 +22,16 @@ go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web 
 
 go get github.com/meatballhat/negroni-logrus - Negroni/Logrus middleware for merging
 negroni logs with application logging. This provides additional data such as status codes,
-time taken for response and latency 
+time taken for response and latency
 ### Configuration
 
 Edit conf.json.example with your stubo instance details:
 {
   "StuboHost": "localhost", // your stubo hostname
   "StuboPort": "8001",  // your stubo port
-  "StuboProtocol": "http" // protocol (should probably be http anyway so leave it)
-  "Environment": "production"
+  "StuboProtocol": "http", // protocol (should probably be http anyway so leave it)
+  "Environment": "production",
+  "debug": true
 }
 Rename conf.json.example to conf.json
 
@@ -39,6 +40,8 @@ Default LGC proxy port is 3000. You are expected to change it during server star
 Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
 Environment variable sets some logging defaults (such as format). Although you can
 modify logging formatter yourself in server.go file.
+
+Debug - when enabled outputs more information about request forming before dispatching them to stubo.
 
 
 ### Current legacy API translations
