@@ -20,6 +20,9 @@ go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer 
 
 go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
 
+go get github.com/meatballhat/negroni-logrus - Negroni/Logrus middleware for merging
+negroni logs with application logging. This provides additional data such as status codes,
+time taken for response and latency 
 ### Configuration
 
 Edit conf.json.example with your stubo instance details:
