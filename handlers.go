@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // DelayPolicy structure for gettting delay policy references
