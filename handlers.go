@@ -249,6 +249,16 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": queryArgs,
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
+	handlersContextLogger.Info("Begin session...")
 	// retrieving details and validating request
 	if scenario, ok := queryArgs["scenario"]; ok {
 		if session, ok := queryArgs["session"]; ok {
@@ -257,24 +267,26 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 				// fine, since we must only ensure that it exists.
 				client := &Client{&http.Client{}}
 				_, err := client.createScenario(scenario[0])
-				if err != nil {
-					http.Error(w, err.Error(), 500)
-				}
+				httperror(w, r, err)
 				// Begin session
 				response, err := client.beginSession(session[0], scenario[0], mode[0])
-				if err != nil {
-					http.Error(w, err.Error(), 500)
-				}
+				httperror(w, r, err)
 				w.Header().Set("Content-Type", "application/json")
 				w.Write(response)
 			} else {
-				http.Error(w, "Bad request, missing session mode key.", 400)
+				msg := "Bad request, missing session mode key."
+				handlersContextLogger.Warn(msg)
+				http.Error(w, msg, 400)
 			}
 		} else {
-			http.Error(w, "Bad request, missing session name.", 400)
+			msg := "Bad request, missing session name."
+			handlersContextLogger.Warn(msg)
+			http.Error(w, msg, 400)
 		}
 	} else {
-		http.Error(w, "Bad request, missing scenario name.", 400)
+		msg := "Bad request, missing scenario name."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
