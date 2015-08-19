@@ -50,9 +50,11 @@ func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 		// setting logger
 		method := trace()
 		log.WithFields(log.Fields{
-			"scenario": scenario,
-			"urlPath":  path,
-			"method":   method,
+			"scenario":      scenario,
+			"urlPath":       path,
+			"headers":       "",
+			"requestMethod": "GET",
+			"method":        method,
 		}).Debug("Getting scenario stubs")
 
 		return c.GetResponseBody(path)
@@ -81,6 +83,17 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		s.headers = headers
 		s.method = "DELETE"
 		fmt.Println(s.headers)
+
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"scenario":      p.name,
+			"urlPath":       s.path,
+			"headers":       s.headers,
+			"requestMethod": s.method,
+			"method":        method,
+		}).Debug("Deleting scenario stubs")
+
 		// calling delete
 		return c.makeRequest(s)
 	}
