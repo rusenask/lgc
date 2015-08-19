@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type params struct {
@@ -173,18 +175,38 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 
 // GetResponseBody calls stubo
 func (c *Client) GetResponseBody(path string) ([]byte, error) {
+	method := trace()
+
 	url := StuboURI + path
-	fmt.Println("Transformed to: ", url)
+	// logging get transformation
+	log.WithFields(log.Fields{
+		"method": method,
+		"url":    url,
+	}).Info("Transforming URL, getting response body")
 	resp, err := c.HTTPClient.Get(url)
+
 	if err != nil {
-		fmt.Printf("%s", err)
+		// logging get error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to get response from Stubo!")
+
 		return []byte(""), err
 	}
 	defer resp.Body.Close()
 	// reading resposne body
 	body, err := ioutil.ReadAll(resp.Body)
+
 	if err != nil {
-		fmt.Printf("%s", err)
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to read response from Stubo!")
+
 		return []byte(""), err
 	}
 	return body, nil
