@@ -50,8 +50,9 @@ func trace() string {
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
-	method := trace()
+
 	// setting context logger
+	method := trace()
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
@@ -84,13 +85,17 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 // optional arguments host=your_host, force=true/false (defaults to false)
 func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+	// setting context logger
 	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
-		log.WithFields(log.Fields{
-			"url_query": r.URL.Query(),
-			"url_path":  r.URL.Path,
-			"method":    method,
-		}).Info("Got query")
+		handlersContextLogger.Info("Got query")
+
 		// expecting params - scenario, host, force
 		client := &Client{&http.Client{}}
 		var p APIParams
@@ -110,7 +115,9 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		http.Error(w, "Scenario name not provided.", 400)
+		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
