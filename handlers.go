@@ -29,9 +29,13 @@ type ResponseToClient struct {
 	Data    map[string]string `json:"version"`
 }
 
-func httperror(w http.ResponseWriter, err error) {
+func httperror(w http.ResponseWriter, r *http.Request, err error) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"URL path":  r.URL.Path,
+		}).Error("Got error during HTTP request to Stubo")
 	}
 }
 
@@ -47,34 +51,31 @@ func trace() string {
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	method := trace()
+	// setting context logger
+	HandlersContextLogger := log.WithFields(log.Fields{
+		"URL query": r.URL.Query(),
+		"URL path":  r.URL.Path,
+		"Method":    method,
+	})
+
 	if ok {
-		log.WithFields(log.Fields{
-			"URL query": r.URL.Query(),
-			"Method":    method,
-		}).Info("Got query")
+		HandlersContextLogger.Info("Got query")
 
 		client := &Client{&http.Client{}}
+
 		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
-		// checking whether we got good response
-		if err != nil {
-			// logging error
-			log.WithFields(log.Fields{
-				"URL query": r.URL.Query(),
-				"Method":    method,
-			}).Error("Got error when getting scenario stubs")
 
-			http.Error(w, err.Error(), 500)
-		}
+		// checking whether we got good response
+		httperror(w, r, err)
+
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
 		// logging error
-		log.WithFields(log.Fields{
-			"URL query": r.URL.Query(),
-			"Method":    method,
-		}).Warn("Scenario name was not provided")
+		HandlersContextLogger.Warn("Scenario name was not provided")
+
 		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
@@ -83,8 +84,14 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 // optional arguments host=your_host, force=true/false (defaults to false)
 func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+	method := trace()
 	if ok {
-		// expecting one param - scenario
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"URL path":  r.URL.Path,
+			"Method":    method,
+		}).Info("Got query")
+		// expecting params - scenario, host, force
 		client := &Client{&http.Client{}}
 		var p APIParams
 		p.name = scenario[0]
@@ -98,7 +105,7 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		response, err := client.deleteScenarioStubs(p)
 		// checking whether we got good response
-		httperror(w, err)
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
@@ -145,17 +152,17 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// expecting one param - name
 		response, err := client.deleteDelayPolicy(name[0])
 		// checking whether we got good response
-		httperror(w, err)
+		httperror(w, r, err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
 		fmt.Println("Deleting all delay policies")
 		delayPolicies, err := client.getAllDelayPolicies()
-		httperror(w, err)
+		httperror(w, r, err)
 		if err == nil {
 			response, err := client.deleteAllDelayPolicies(delayPolicies)
-			httperror(w, err)
+			httperror(w, r, err)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(response)
 		}
