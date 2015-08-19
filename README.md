@@ -27,12 +27,15 @@ Edit conf.json.example with your stubo instance details:
   "StuboHost": "localhost", // your stubo hostname
   "StuboPort": "8001",  // your stubo port
   "StuboProtocol": "http" // protocol (should probably be http anyway so leave it)
+  "Environment": "production"
 }
 Rename conf.json.example to conf.json
 
 Default LGC proxy port is 3000. You are expected to change it during server startup:
 ./lgc -port=":8001"
 Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
+Environment variable sets some logging defaults (such as format). Although you can
+modify logging formatter yourself in server.go file.
 
 
 ### Current legacy API translations
