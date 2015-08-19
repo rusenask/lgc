@@ -291,21 +291,29 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
-		fmt.Println("got:", r.URL.Query())
+		handlersContextLogger.Info("Ending session...")
 		// expecting one param - scenario
 		client := &Client{&http.Client{}}
 		response, err := client.endSessions(scenario[0])
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		http.Error(w, "Scenario name not provided.", 400)
+		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
