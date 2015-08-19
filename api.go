@@ -142,6 +142,17 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 	var s params
 	s.path = path
 	s.method = "DELETE"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          name,
+		"urlPath":       s.path,
+		"headers":       "",
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Deleting specified delay policy")
+
 	return c.makeRequest(s)
 }
 
@@ -151,9 +162,21 @@ func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
-	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"scenario":      scenario,
+		"session":       session,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          s.body,
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Begin session")
+
 	return c.makeRequest(s)
 }
 
@@ -164,18 +187,54 @@ func (c *Client) createScenario(scenario string) ([]byte, error) {
 	fmt.Println("formated body: ", s.body)
 	s.path = path
 	s.method = "PUT"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          scenario,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Creating scenario")
+
 	return c.makeRequest(s)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
 func (c *Client) getScenariosDetail() ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/detail"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": "",
+		"method":        method,
+	}).Debug("Getting scenario details")
+
 	return c.GetResponseBody(path)
 }
 
 // getScenarios gets and returns all scenarios with details
 func (c *Client) getScenarios() ([]byte, error) {
 	path := "/stubo/api/v2/scenarios"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": "",
+		"method":        method,
+	}).Debug("Getting scenarios")
+
 	return c.GetResponseBody(path)
 }
 
