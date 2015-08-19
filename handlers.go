@@ -319,11 +319,18 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 
 func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
 	client := &Client{&http.Client{}}
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	}).Info("Getting scenarios")
+
 	response, err := client.getScenarios()
 	// checking whether we got good response
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
+	httperror(w, r, err)
 	// setting resposne header
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
