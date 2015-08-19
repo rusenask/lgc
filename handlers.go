@@ -208,7 +208,6 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 		"delayPolicies": data,
 	}).Info("Deleting delay policies")
 
-	fmt.Println(data)
 	if err != nil {
 		return []byte(""), err
 	}
