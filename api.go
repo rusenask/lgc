@@ -43,14 +43,14 @@ func New(text string) error {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
-	if scenario != "" {
-		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+func (c *Client) getScenarioStubs(name string) ([]byte, error) {
+	if name != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + name + "/stubs"
 
 		// setting logger
 		method := trace()
 		log.WithFields(log.Fields{
-			"scenario":      scenario,
+			"name":          name,
 			"urlPath":       path,
 			"headers":       "",
 			"requestMethod": "GET",
@@ -87,7 +87,7 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		// setting logger
 		method := trace()
 		log.WithFields(log.Fields{
-			"scenario":      p.name,
+			"name":          p.name,
 			"urlPath":       s.path,
 			"headers":       s.headers,
 			"requestMethod": s.method,
@@ -106,6 +106,16 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 	if name != "" {
 		path := "/stubo/api/v2/delay-policy/objects/" + name
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"name":          name,
+			"urlPath":       path,
+			"headers":       "",
+			"requestMethod": "GET",
+			"method":        method,
+		}).Debug("Getting specified delay policy")
+
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getDelayPolicy error: delay policy name supplied")
@@ -113,6 +123,17 @@ func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 
 func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/detail"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"requestMethod": "GET",
+		"method":        method,
+	}).Debug("Getting all delay policies")
+
 	return c.GetResponseBody(path)
 }
 
