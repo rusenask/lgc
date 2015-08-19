@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -17,6 +16,7 @@ type Configuration struct {
 	StuboProtocol string
 	StuboHost     string
 	StuboPort     string
+	Environment   string
 }
 
 // StuboConfig stores target Stubo instance details (protocol, hostname, port, etc..)
@@ -26,19 +26,28 @@ var StuboConfig Configuration
 var StuboURI string
 
 func main() {
-	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
-
 	// Output to stderr instead of stdout, could also be a file.
 	log.SetOutput(os.Stderr)
 
 	// getting configuration
-	file, _ := os.Open("conf.json")
+	file, err := os.Open("conf.json")
+	if err != nil {
+		log.Panic("Failed to open configuration file, quiting server.")
+	}
 	decoder := json.NewDecoder(file)
 	StuboConfig = Configuration{}
-	err := decoder.Decode(&StuboConfig)
+	err = decoder.Decode(&StuboConfig)
 	if err != nil {
-		fmt.Println("error:", err)
+		log.WithFields(log.Fields{"Error": err.Error()}).Panic("Failed to read configuration")
+	}
+	// configuring logger based on environment settings
+	if StuboConfig.Environment == "production" {
+		// Log as JSON instead of the default ASCII formatter.
+		log.SetFormatter(&log.JSONFormatter{})
+		// TODO: also, write to file, probably log file path should also be configurable
+	} else {
+		// The TextFormatter is default
+		log.SetFormatter(&log.TextFormatter{})
 	}
 	// looking for option args when starting App
 	// like ./lgc -port=":3000" would start on port 3000
