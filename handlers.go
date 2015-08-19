@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // DelayPolicy structure for gettting delay policy references
@@ -32,18 +35,70 @@ func httperror(w http.ResponseWriter, err error) {
 	}
 }
 
+// trace returns name of the current function
+func trace() string {
+	pc := make([]uintptr, 10) // at least 1 entry needed
+	runtime.Callers(2, pc)
+	f := runtime.FuncForPC(pc[0])
+	return f.Name()
+}
+
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+	method := trace()
 	if ok {
-		fmt.Println("got:", r.URL.Query())
-		// expecting one param - scenario
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"Method":    method,
+		}).Info("Got query")
+
 		client := &Client{&http.Client{}}
+		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
 		// checking whether we got good response
 		if err != nil {
+			// logging error
+			log.WithFields(log.Fields{
+				"URL query": r.URL.Query(),
+				"Method":    method,
+			}).Error("Got error when getting scenario stubs")
+
 			http.Error(w, err.Error(), 500)
 		}
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		// logging error
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"Method":    method,
+		}).Warn("Scenario name was not provided")
+		http.Error(w, "Scenario name not provided.", 400)
+	}
+}
+
+// deleteStubsHandler deletes scenario stubs, e.g.: stubo/api/delete/stubs?scenario=first
+// optional arguments host=your_host, force=true/false (defaults to false)
+func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
+	scenario, ok := r.URL.Query()["scenario"]
+	if ok {
+		// expecting one param - scenario
+		client := &Client{&http.Client{}}
+		var p APIParams
+		p.name = scenario[0]
+		force, ok := r.URL.Query()["force"]
+		if ok {
+			p.force = force[0]
+		}
+		host, ok := r.URL.Query()["host"]
+		if ok {
+			p.targetHost = host[0]
+		}
+		response, err := client.deleteScenarioStubs(p)
+		// checking whether we got good response
+		httperror(w, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
@@ -61,7 +116,6 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name provided so looking for specific delay
 		fmt.Println("got:", r.URL.Query())
 		// expecting one param - scenario
-
 		response, err := client.getDelayPolicy(name[0])
 		// checking whether we got good response
 		if err != nil {
@@ -97,36 +151,35 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		fmt.Println("Deleting all delay policies")
-		response, err := client.deleteAllDelayPolicies()
-
+		delayPolicies, err := client.getAllDelayPolicies()
 		httperror(w, err)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(response)
-		// http.Error(w, "Delay policy name not provided.", 400)
+		if err == nil {
+			response, err := client.deleteAllDelayPolicies(delayPolicies)
+			httperror(w, err)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
+		}
 	}
 }
 
 // deleteAllDelayPolicies - custom handler to delete multiple delay policies.
-// This API call is not directly available through API v2 so we are combining
-// several calls to API to get a list of all available delay policies
+// This API call is not directly available through API v2 so we are taking
+// response with all delay policies - unmarshalling it, getting all names
 // and then deleting them one by one
-func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
+func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// getting all delay policy names
-	allDelayPolicies, err := c.getAllDelayPolicies()
-	if err != nil {
-		return []byte(""), err
-	}
+	allDelayPolicies := dp
 	// Unmarshaling JSON
 	var data DelayPolicyResponse
-	err = json.Unmarshal(allDelayPolicies, &data)
+	err := json.Unmarshal(allDelayPolicies, &data)
 	fmt.Println(data)
 	if err != nil {
 		return []byte(""), err
 	}
 	// Getting stubo version
 	version := data.Version
-	fmt.Println("Stubo version: ", version)
+
+	// Deleting delay policies
 	var responses []string
 	for _, dp := range data.Data {
 		_, err := c.deleteDelayPolicy(dp.Name)
@@ -143,8 +196,8 @@ func (c *Client) deleteAllDelayPolicies() ([]byte, error) {
 		Data:    map[string]string{"message": message},
 	}
 	// encoding to JSON and returning
-	resB, err := json.Marshal(res)
-	return resB, err
+	respBytes, err := json.Marshal(res)
+	return respBytes, err
 }
 
 // begin/session (GET, POST)

@@ -46,18 +46,44 @@ func TestGetScenarioStubs(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	response, err := c.getScenarioStubs("scenario1")
+	name := "scenario_1"
+	response, err := c.getScenarioStubs(name)
 	resp := string(response)
 	expect(t, len(response), 52)
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
 }
 
+func TestDeleteScenarioStubs(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	var data APIParams
+	data.name = "scenario_1"
+	data.force = "true"
+	data.targetHost = "somehost"
+	response, err := c.deleteScenarioStubs(data)
+	resp := string(response)
+	expect(t, len(response), 52)
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestDeleteScenarioStubsFail(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	var data APIParams
+	_, err := c.deleteScenarioStubs(data)
+	refute(t, err, nil)
+}
+
 func TestGetDelayPolicy(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"policy": "policy_1"}]}`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	response, err := c.getDelayPolicy("policy_1")
+	name := "scenario_1"
+	response, err := c.getDelayPolicy(name)
 	resp := string(response)
 	expect(t, len(response), 53)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -79,9 +105,40 @@ func TestDeleteDelayPolicy(t *testing.T) {
 	testdata := `data response`
 	server, c := testTools(200, testdata)
 	defer server.Close()
-	response, err := c.deleteDelayPolicy("delay_policy_name")
+	name := "delay_policy_name"
+	response, err := c.deleteDelayPolicy(name)
 	resp := string(response)
 	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+// TestDeleteAllDelayPolicies passes stubbed response from API v2 containing
+// 3 delay policies to deleteAllDelayPolicies function and expects result with
+// message that all three policies were deleted. Httptest server returns 200
+// for all three deletions
+func TestDeleteAllDelayPolicies(t *testing.T) {
+	delayPoliciesBytes := []byte(`{"version": "0.6.6",
+																 "data": [
+																					{"delay_type":
+																					 "fixed",
+																			  	 "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+																					 "name": "my_delay",
+																					 "milliseconds": 50},
+																					{"delay_type": "fixed",
+																					"delayPolicyRef":
+																					"/stubo/api/v2/delay-policy/objects/my_delay2",
+																					"name": "my_delay2", "milliseconds": 50},
+																					{"delay_type": "fixed",
+																					"delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay1",
+																					"name": "my_delay1",
+																					"milliseconds": 50}]}`)
+	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
+	server, c := testTools(200, testData)
+	defer server.Close()
+	response, err := c.deleteAllDelayPolicies(delayPoliciesBytes)
+	resp := string(response)
+	fmt.Println(resp)
+	expect(t, strings.Contains(resp, "Deleted 3 delay policies: my_delay my_delay2 my_delay1"), true)
 	expect(t, err, nil)
 }
 

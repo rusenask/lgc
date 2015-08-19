@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,28 +10,81 @@ import (
 
 type params struct {
 	path, body, method string
+	headers            map[string]string
 }
 
-// Client structure to be used by HTTP
+// APIParams struct is used to pass parameters to more complex
+// API functions such as resource name, host, etc..
+type APIParams struct {
+	name, targetHost, force string
+}
+
+// Client structure to be injected into functions to perform HTTP calls
 type Client struct {
 	HTTPClient *http.Client
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+
+// New returns an error that formats as the given text.
+func New(text string) error {
+	return &errorString{text}
 }
 
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
 func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
-	fmt.Println(StuboConfig.StuboHost)
-	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
-	return c.GetResponseBody(path)
+	if scenario != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+		return c.GetResponseBody(path)
+	}
+	return []byte(""), errors.New("api.getScenarioStubs error: scenario name not supplied")
+}
+
+// deleteScenarioStubs takes apiParams as an argument which contains
+// scenario name and two optional parameters for headers:
+// "force" which defaults to false and "targetHost" which can specify another
+// host
+func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
+	var s params
+	// adding path
+	if p.name != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + p.name + "/stubs"
+		s.path = path
+		// creating MAP for headers
+		headers := make(map[string]string)
+		if p.force != "" {
+			headers["force"] = p.force
+		}
+		if p.targetHost != "" {
+			headers["target_host"] = p.targetHost
+		}
+		s.headers = headers
+		s.method = "DELETE"
+		fmt.Println(s.headers)
+		// calling delete
+		return c.makeRequest(s)
+	}
+	return []byte(""), errors.New("api.deleteScenarioStubs error: scenario name not supplied")
 }
 
 // getDelayPolicy gets specified delay-policy
 // /stubo/api/v2/delay-policy/detail
 // returns raw response in bytes
 func (c *Client) getDelayPolicy(name string) ([]byte, error) {
-	path := "/stubo/api/v2/delay-policy/objects/" + name
-	return c.GetResponseBody(path)
+	if name != "" {
+		path := "/stubo/api/v2/delay-policy/objects/" + name
+		return c.GetResponseBody(path)
+	}
+	return []byte(""), errors.New("api.getDelayPolicy error: delay policy name supplied")
 }
 
 func (c *Client) getAllDelayPolicies() ([]byte, error) {
@@ -97,6 +151,11 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
+	if s.headers != nil {
+		for k, v := range s.headers {
+			req.Header.Set(k, v)
+		}
+	}
 	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.HTTPClient.Do(req)

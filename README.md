@@ -7,9 +7,11 @@ Example:
 LGC proxy running on port 3000 and Stubo with API v2 running on port 8001.
 
 Client calls:
-http://localhost:3000/stubo/api/get/delay_policy?name=delay_1
+ * http://localhost:3000/stubo/api/get/delay_policy?name=delay_1
+
 This then gets translated into:
-http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
+* http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
+
 LGC gets response and sends it back to the client.
 
 
@@ -25,12 +27,15 @@ Edit conf.json.example with your stubo instance details:
   "StuboHost": "localhost", // your stubo hostname
   "StuboPort": "8001",  // your stubo port
   "StuboProtocol": "http" // protocol (should probably be http anyway so leave it)
+  "Environment": "production"
 }
 Rename conf.json.example to conf.json
 
 Default LGC proxy port is 3000. You are expected to change it during server startup:
 ./lgc -port=":8001"
 Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
+Environment variable sets some logging defaults (such as format). Although you can
+modify logging formatter yourself in server.go file.
 
 
 ### Current legacy API translations
@@ -49,9 +54,13 @@ Would change it to this port. Remember to change your original stubo instance po
 * get/delay_policy:
     + name provided - __implemented__
     + name not provided (should list all delay policies) - __implemented__
-* delete/delay_policy - not implemented
+* delete/delay_policy:
+    + name provided - __implemented__
+    + name not provided (should delete all delay policies) - __implemented__
 * get/response - not present in API v2
-* delete/stubs - not implemented
+* delete/stubs:
+    + host provided - __implemented__
+    + force provided - __implemented__
 * get/export - not implemented
 * get/stubcount - not implemented
 * put/module - not present in API v2
