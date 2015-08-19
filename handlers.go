@@ -32,6 +32,14 @@ func httperror(w http.ResponseWriter, err error) {
 	}
 }
 
+// trace returns name of the current function
+func trace() string {
+	pc := make([]uintptr, 10) // at least 1 entry needed
+	runtime.Callers(2, pc)
+	f := runtime.FuncForPC(pc[0])
+	return f.Name()
+}
+
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
