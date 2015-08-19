@@ -58,12 +58,23 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 		response, err := client.getScenarioStubs(scenario[0])
 		// checking whether we got good response
 		if err != nil {
+			// logging error
+			log.WithFields(log.Fields{
+				"URL query": r.URL.Query(),
+				"Method":    method,
+			}).Error("Got error when getting scenario stubs")
+
 			http.Error(w, err.Error(), 500)
 		}
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
+		// logging error
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"Method":    method,
+		}).Warn("Scenario name was not provided")
 		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
