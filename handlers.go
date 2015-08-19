@@ -46,8 +46,13 @@ func trace() string {
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+	method := trace()
 	if ok {
-		fmt.Println("got:", r.URL.Query())
+		log.WithFields(log.Fields{
+			"URL query": r.URL.Query(),
+			"Method":    method,
+		}).Info("Got query")
+
 		client := &Client{&http.Client{}}
 		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
