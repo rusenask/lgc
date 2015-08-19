@@ -126,15 +126,20 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	client := &Client{&http.Client{}}
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
-		// name provided so looking for specific delay
-		fmt.Println("got:", r.URL.Query())
+		handlersContextLogger.Info("Got query")
 		// expecting one param - scenario
 		response, err := client.getDelayPolicy(name[0])
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
@@ -142,9 +147,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name is not provided, getting all delay policies
 		response, err := client.getAllDelayPolicies()
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	}
@@ -155,7 +158,17 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	client := &Client{&http.Client{}}
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
+		handlersContextLogger.Info("Deleting specified delay policy")
 		// expecting one param - name
 		response, err := client.deleteDelayPolicy(name[0])
 		// checking whether we got good response
@@ -164,10 +177,11 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		fmt.Println("Deleting all delay policies")
+		handlersContextLogger.Info("Deleting all delay policies in two steps")
 		delayPolicies, err := client.getAllDelayPolicies()
 		httperror(w, r, err)
 		if err == nil {
+			handlersContextLogger.Info("Got all delay policies, deleting one by one")
 			response, err := client.deleteAllDelayPolicies(delayPolicies)
 			httperror(w, r, err)
 			w.Header().Set("Content-Type", "application/json")
