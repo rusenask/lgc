@@ -9,6 +9,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/go-zoo/bone"
+	"github.com/meatballhat/negroni-logrus"
 )
 
 // Configuration to hold stubo details
@@ -73,6 +74,7 @@ func main() {
 	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
 	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenariosHandler))
 	n := negroni.Classic()
+	n.Use(negronilogrus.NewMiddleware())
 	n.UseHandler(mux)
 	n.Run(*port)
 }

@@ -29,9 +29,13 @@ type ResponseToClient struct {
 	Data    map[string]string `json:"version"`
 }
 
-func httperror(w http.ResponseWriter, err error) {
+func httperror(w http.ResponseWriter, r *http.Request, err error) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		log.WithFields(log.Fields{
+			"url_query": r.URL.Query(),
+			"url_path":  r.URL.Path,
+		}).Error("Got error during HTTP request to Stubo")
 	}
 }
 
@@ -46,35 +50,33 @@ func trace() string {
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
 func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+
+	// setting context logger
 	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
-		log.WithFields(log.Fields{
-			"URL query": r.URL.Query(),
-			"Method":    method,
-		}).Info("Got query")
+		handlersContextLogger.Info("Got query")
 
 		client := &Client{&http.Client{}}
+
 		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
-		// checking whether we got good response
-		if err != nil {
-			// logging error
-			log.WithFields(log.Fields{
-				"URL query": r.URL.Query(),
-				"Method":    method,
-			}).Error("Got error when getting scenario stubs")
 
-			http.Error(w, err.Error(), 500)
-		}
+		// checking whether we got good response
+		httperror(w, r, err)
+
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
 		// logging error
-		log.WithFields(log.Fields{
-			"URL query": r.URL.Query(),
-			"Method":    method,
-		}).Warn("Scenario name was not provided")
+		handlersContextLogger.Warn("Scenario name was not provided")
+
 		http.Error(w, "Scenario name not provided.", 400)
 	}
 }
@@ -83,8 +85,18 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 // optional arguments host=your_host, force=true/false (defaults to false)
 func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
-		// expecting one param - scenario
+		handlersContextLogger.Info("Got query")
+
+		// expecting params - scenario, host, force
 		client := &Client{&http.Client{}}
 		var p APIParams
 		p.name = scenario[0]
@@ -98,12 +110,14 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		response, err := client.deleteScenarioStubs(p)
 		// checking whether we got good response
-		httperror(w, err)
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		http.Error(w, "Scenario name not provided.", 400)
+		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
@@ -112,15 +126,20 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	client := &Client{&http.Client{}}
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
-		// name provided so looking for specific delay
-		fmt.Println("got:", r.URL.Query())
+		handlersContextLogger.Info("Got query")
 		// expecting one param - scenario
 		response, err := client.getDelayPolicy(name[0])
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
@@ -128,9 +147,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 		// name is not provided, getting all delay policies
 		response, err := client.getAllDelayPolicies()
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	}
@@ -141,21 +158,32 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
 	client := &Client{&http.Client{}}
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
 	if ok {
+		handlersContextLogger.Info("Deleting specified delay policy")
 		// expecting one param - name
 		response, err := client.deleteDelayPolicy(name[0])
 		// checking whether we got good response
-		httperror(w, err)
+		httperror(w, r, err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		fmt.Println("Deleting all delay policies")
+		handlersContextLogger.Info("Deleting all delay policies in two steps")
 		delayPolicies, err := client.getAllDelayPolicies()
-		httperror(w, err)
+		httperror(w, r, err)
 		if err == nil {
+			handlersContextLogger.Info("Got all delay policies, deleting one by one")
 			response, err := client.deleteAllDelayPolicies(delayPolicies)
-			httperror(w, err)
+			httperror(w, r, err)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(response)
 		}
@@ -172,7 +200,14 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// Unmarshaling JSON
 	var data DelayPolicyResponse
 	err := json.Unmarshal(allDelayPolicies, &data)
-	fmt.Println(data)
+
+	// logging
+	method := trace()
+	log.WithFields(log.Fields{
+		"method":        method,
+		"delayPolicies": data,
+	}).Info("Deleting delay policies")
+
 	if err != nil {
 		return []byte(""), err
 	}
@@ -183,13 +218,23 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	var responses []string
 	for _, dp := range data.Data {
 		_, err := c.deleteDelayPolicy(dp.Name)
+
 		if err == nil {
 			responses = append(responses, dp.Name)
+		} else {
+			log.WithFields(log.Fields{
+				"method": method,
+				"error":  err.Error(),
+			}).Warn("Failed to delete delay policy")
 		}
 	}
 	// creating message for the client
 	message := fmt.Sprintf("Deleted %d delay policies: ", len(responses)) + strings.Join(responses, " ")
 
+	log.WithFields(log.Fields{
+		"method":   method,
+		"response": message,
+	}).Info("Delay policies deleted")
 	// creating structure for the response
 	res := &ResponseToClient{
 		Version: version,
@@ -204,6 +249,16 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
 func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": queryArgs,
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
+
+	handlersContextLogger.Info("Begin session...")
 	// retrieving details and validating request
 	if scenario, ok := queryArgs["scenario"]; ok {
 		if session, ok := queryArgs["session"]; ok {
@@ -212,53 +267,70 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 				// fine, since we must only ensure that it exists.
 				client := &Client{&http.Client{}}
 				_, err := client.createScenario(scenario[0])
-				if err != nil {
-					http.Error(w, err.Error(), 500)
-				}
+				httperror(w, r, err)
 				// Begin session
 				response, err := client.beginSession(session[0], scenario[0], mode[0])
-				if err != nil {
-					http.Error(w, err.Error(), 500)
-				}
+				httperror(w, r, err)
 				w.Header().Set("Content-Type", "application/json")
 				w.Write(response)
 			} else {
-				http.Error(w, "Bad request, missing session mode key.", 400)
+				msg := "Bad request, missing session mode key."
+				handlersContextLogger.Warn(msg)
+				http.Error(w, msg, 400)
 			}
 		} else {
-			http.Error(w, "Bad request, missing session name.", 400)
+			msg := "Bad request, missing session name."
+			handlersContextLogger.Warn(msg)
+			http.Error(w, msg, 400)
 		}
 	} else {
-		http.Error(w, "Bad request, missing scenario name.", 400)
+		msg := "Bad request, missing scenario name."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
 func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	})
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
-		fmt.Println("got:", r.URL.Query())
+		handlersContextLogger.Info("Ending session...")
 		// expecting one param - scenario
 		client := &Client{&http.Client{}}
 		response, err := client.endSessions(scenario[0])
 		// checking whether we got good response
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
+		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	} else {
-		http.Error(w, "Scenario name not provided.", 400)
+		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
 	}
 }
 
 func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
 	client := &Client{&http.Client{}}
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"method":    method,
+	}).Info("Getting scenarios")
+
 	response, err := client.getScenarios()
 	// checking whether we got good response
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
+	httperror(w, r, err)
 	// setting resposne header
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type params struct {
@@ -41,9 +43,20 @@ func New(text string) error {
 // getStubList calls to Stubo's REST API
 // /stubo/api/v2/scenarios/objects/{scenario_name}/stubs/detail
 // returns raw response in bytes
-func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
-	if scenario != "" {
-		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+func (c *Client) getScenarioStubs(name string) ([]byte, error) {
+	if name != "" {
+		path := "/stubo/api/v2/scenarios/objects/" + name + "/stubs"
+
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"name":          name,
+			"urlPath":       path,
+			"headers":       "",
+			"requestMethod": "GET",
+			"method":        method,
+		}).Debug("Getting scenario stubs")
+
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getScenarioStubs error: scenario name not supplied")
@@ -70,6 +83,17 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		s.headers = headers
 		s.method = "DELETE"
 		fmt.Println(s.headers)
+
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"name":          p.name,
+			"urlPath":       s.path,
+			"headers":       s.headers,
+			"requestMethod": s.method,
+			"method":        method,
+		}).Debug("Deleting scenario stubs")
+
 		// calling delete
 		return c.makeRequest(s)
 	}
@@ -82,6 +106,16 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 	if name != "" {
 		path := "/stubo/api/v2/delay-policy/objects/" + name
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"name":          name,
+			"urlPath":       path,
+			"headers":       "",
+			"requestMethod": "GET",
+			"method":        method,
+		}).Debug("Getting specified delay policy")
+
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getDelayPolicy error: delay policy name supplied")
@@ -89,6 +123,17 @@ func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 
 func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/detail"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"requestMethod": "GET",
+		"method":        method,
+	}).Debug("Getting all delay policies")
+
 	return c.GetResponseBody(path)
 }
 
@@ -97,6 +142,17 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 	var s params
 	s.path = path
 	s.method = "DELETE"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          name,
+		"urlPath":       s.path,
+		"headers":       "",
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Deleting specified delay policy")
+
 	return c.makeRequest(s)
 }
 
@@ -106,9 +162,21 @@ func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
-	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"scenario":      scenario,
+		"session":       session,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          s.body,
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Begin session")
+
 	return c.makeRequest(s)
 }
 
@@ -119,18 +187,54 @@ func (c *Client) createScenario(scenario string) ([]byte, error) {
 	fmt.Println("formated body: ", s.body)
 	s.path = path
 	s.method = "PUT"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          scenario,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Creating scenario")
+
 	return c.makeRequest(s)
 }
 
 // getScenariosDetail gets and returns all scenarios with details
 func (c *Client) getScenariosDetail() ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/detail"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": "",
+		"method":        method,
+	}).Debug("Getting scenario details")
+
 	return c.GetResponseBody(path)
 }
 
 // getScenarios gets and returns all scenarios with details
 func (c *Client) getScenarios() ([]byte, error) {
 	path := "/stubo/api/v2/scenarios"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          "",
+		"urlPath":       path,
+		"headers":       "",
+		"body":          "",
+		"requestMethod": "",
+		"method":        method,
+	}).Debug("Getting scenarios")
+
 	return c.GetResponseBody(path)
 }
 
@@ -139,17 +243,37 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
-	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          scenario,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          s.body,
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Ending sessions")
+
 	return c.makeRequest(s)
 }
 
 func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
-	fmt.Println("URL transformed to: ", url)
-	fmt.Println("Body: ", s.body)
 	var jsonStr = []byte(s.body)
+
+	// logging get transformation
+	method := trace()
+	log.WithFields(log.Fields{
+		"method":        method,
+		"url":           url,
+		"body":          s.body,
+		"headers":       s.headers,
+		"requestMethod": s.method,
+	}).Info("Transforming URL, preparing for request to Stubo")
+
 	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
 	if s.headers != nil {
 		for k, v := range s.headers {
@@ -160,12 +284,26 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to get response from Stubo!")
+
 		return []byte(""), err
 	}
 	defer resp.Body.Close()
 	// reading body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to read response from Stubo!")
+
 		return []byte(""), err
 	}
 	return body, nil
@@ -174,17 +312,36 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 // GetResponseBody calls stubo
 func (c *Client) GetResponseBody(path string) ([]byte, error) {
 	url := StuboURI + path
-	fmt.Println("Transformed to: ", url)
+	// logging get transformation
+	method := trace()
+	log.WithFields(log.Fields{
+		"method": method,
+		"url":    url,
+	}).Info("Transforming URL, getting response body")
 	resp, err := c.HTTPClient.Get(url)
+
 	if err != nil {
-		fmt.Printf("%s", err)
+		// logging get error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to get response from Stubo!")
+
 		return []byte(""), err
 	}
 	defer resp.Body.Close()
 	// reading resposne body
 	body, err := ioutil.ReadAll(resp.Body)
+
 	if err != nil {
-		fmt.Printf("%s", err)
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to read response from Stubo!")
+
 		return []byte(""), err
 	}
 	return body, nil
