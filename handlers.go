@@ -200,6 +200,14 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// Unmarshaling JSON
 	var data DelayPolicyResponse
 	err := json.Unmarshal(allDelayPolicies, &data)
+
+	// logging
+	method := trace()
+	log.WithFields(log.Fields{
+		"method":        method,
+		"delayPolicies": data,
+	}).Info("Deleting delay policies")
+
 	fmt.Println(data)
 	if err != nil {
 		return []byte(""), err
@@ -211,13 +219,23 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	var responses []string
 	for _, dp := range data.Data {
 		_, err := c.deleteDelayPolicy(dp.Name)
+
 		if err == nil {
 			responses = append(responses, dp.Name)
+		} else {
+			log.WithFields(log.Fields{
+				"method": method,
+				"error":  err.Error(),
+			}).Warn("Failed to delete delay policy")
 		}
 	}
 	// creating message for the client
 	message := fmt.Sprintf("Deleted %d delay policies: ", len(responses)) + strings.Join(responses, " ")
 
+	log.WithFields(log.Fields{
+		"method":   method,
+		"response": message,
+	}).Info("Delay policies deleted")
 	// creating structure for the response
 	res := &ResponseToClient{
 		Version: version,
