@@ -171,12 +171,26 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to get response from Stubo!")
+
 		return []byte(""), err
 	}
 	defer resp.Body.Close()
 	// reading body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		// logging read error
+		log.WithFields(log.Fields{
+			"error":  err.Error(),
+			"method": method,
+			"url":    url,
+		}).Warn("Failed to read response from Stubo!")
+
 		return []byte(""), err
 	}
 	return body, nil
@@ -184,10 +198,9 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 
 // GetResponseBody calls stubo
 func (c *Client) GetResponseBody(path string) ([]byte, error) {
-	method := trace()
-
 	url := StuboURI + path
 	// logging get transformation
+	method := trace()
 	log.WithFields(log.Fields{
 		"method": method,
 		"url":    url,
