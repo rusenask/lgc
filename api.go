@@ -243,9 +243,20 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
-	fmt.Println("formated body for session begin: ", s.body)
 	s.path = path
 	s.method = "POST"
+
+	// setting logger
+	method := trace()
+	log.WithFields(log.Fields{
+		"name":          scenario,
+		"urlPath":       s.path,
+		"headers":       "",
+		"body":          s.body,
+		"requestMethod": s.method,
+		"method":        method,
+	}).Debug("Ending sessions")
+
 	return c.makeRequest(s)
 }
 
