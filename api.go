@@ -46,6 +46,15 @@ func New(text string) error {
 func (c *Client) getScenarioStubs(scenario string) ([]byte, error) {
 	if scenario != "" {
 		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"scenario": scenario,
+			"urlPath":  path,
+			"method":   method,
+		}).Debug("Getting scenario stubs")
+
 		return c.GetResponseBody(path)
 	}
 	return []byte(""), errors.New("api.getScenarioStubs error: scenario name not supplied")
