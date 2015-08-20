@@ -54,7 +54,7 @@ func (c *Client) getScenarioStubs(name string) ([]byte, error) {
 			"urlPath":       path,
 			"headers":       "",
 			"requestMethod": "GET",
-			"method":        method,
+			"func":          method,
 		}).Debug("Getting scenario stubs")
 
 		return c.GetResponseBody(path)
@@ -91,7 +91,7 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 			"urlPath":       s.path,
 			"headers":       s.headers,
 			"requestMethod": s.method,
-			"method":        method,
+			"func":          method,
 		}).Debug("Deleting scenario stubs")
 
 		// calling delete
@@ -113,7 +113,7 @@ func (c *Client) getDelayPolicy(name string) ([]byte, error) {
 			"urlPath":       path,
 			"headers":       "",
 			"requestMethod": "GET",
-			"method":        method,
+			"func":          method,
 		}).Debug("Getting specified delay policy")
 
 		return c.GetResponseBody(path)
@@ -131,7 +131,7 @@ func (c *Client) getAllDelayPolicies() ([]byte, error) {
 		"urlPath":       path,
 		"headers":       "",
 		"requestMethod": "GET",
-		"method":        method,
+		"func":          method,
 	}).Debug("Getting all delay policies")
 
 	return c.GetResponseBody(path)
@@ -150,7 +150,7 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 		"urlPath":       s.path,
 		"headers":       "",
 		"requestMethod": s.method,
-		"method":        method,
+		"func":          method,
 	}).Debug("Deleting specified delay policy")
 
 	return c.makeRequest(s)
@@ -174,7 +174,7 @@ func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 		"headers":       "",
 		"body":          s.body,
 		"requestMethod": s.method,
-		"method":        method,
+		"func":          method,
 	}).Debug("Begin session")
 
 	return c.makeRequest(s)
@@ -196,7 +196,7 @@ func (c *Client) createScenario(scenario string) ([]byte, error) {
 		"headers":       "",
 		"body":          "",
 		"requestMethod": s.method,
-		"method":        method,
+		"func":          method,
 	}).Debug("Creating scenario")
 
 	return c.makeRequest(s)
@@ -214,7 +214,7 @@ func (c *Client) getScenariosDetail() ([]byte, error) {
 		"headers":       "",
 		"body":          "",
 		"requestMethod": "",
-		"method":        method,
+		"func":          method,
 	}).Debug("Getting scenario details")
 
 	return c.GetResponseBody(path)
@@ -232,7 +232,7 @@ func (c *Client) getScenarios() ([]byte, error) {
 		"headers":       "",
 		"body":          "",
 		"requestMethod": "",
-		"method":        method,
+		"func":          method,
 	}).Debug("Getting scenarios")
 
 	return c.GetResponseBody(path)
@@ -254,7 +254,7 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 		"headers":       "",
 		"body":          s.body,
 		"requestMethod": s.method,
-		"method":        method,
+		"func":          method,
 	}).Debug("Ending sessions")
 
 	return c.makeRequest(s)
@@ -267,7 +267,7 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	// logging get transformation
 	method := trace()
 	log.WithFields(log.Fields{
-		"method":        method,
+		"func":          method,
 		"url":           url,
 		"body":          s.body,
 		"headers":       s.headers,
@@ -286,9 +286,9 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	if err != nil {
 		// logging read error
 		log.WithFields(log.Fields{
-			"error":  err.Error(),
-			"method": method,
-			"url":    url,
+			"error": err.Error(),
+			"func":  method,
+			"url":   url,
 		}).Warn("Failed to get response from Stubo!")
 
 		return []byte(""), err
@@ -299,9 +299,9 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 	if err != nil {
 		// logging read error
 		log.WithFields(log.Fields{
-			"error":  err.Error(),
-			"method": method,
-			"url":    url,
+			"error": err.Error(),
+			"func":  method,
+			"url":   url,
 		}).Warn("Failed to read response from Stubo!")
 
 		return []byte(""), err
@@ -315,17 +315,17 @@ func (c *Client) GetResponseBody(path string) ([]byte, error) {
 	// logging get transformation
 	method := trace()
 	log.WithFields(log.Fields{
-		"method": method,
-		"url":    url,
+		"func": method,
+		"url":  url,
 	}).Info("Transforming URL, getting response body")
 	resp, err := c.HTTPClient.Get(url)
 
 	if err != nil {
 		// logging get error
 		log.WithFields(log.Fields{
-			"error":  err.Error(),
-			"method": method,
-			"url":    url,
+			"error": err.Error(),
+			"func":  method,
+			"url":   url,
 		}).Warn("Failed to get response from Stubo!")
 
 		return []byte(""), err
@@ -337,9 +337,9 @@ func (c *Client) GetResponseBody(path string) ([]byte, error) {
 	if err != nil {
 		// logging read error
 		log.WithFields(log.Fields{
-			"error":  err.Error(),
-			"method": method,
-			"url":    url,
+			"error": err.Error(),
+			"func":  method,
+			"url":   url,
 		}).Warn("Failed to read response from Stubo!")
 
 		return []byte(""), err

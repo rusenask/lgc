@@ -1,6 +1,7 @@
 {
-  "StuboHost": "localhost",
-  "StuboPort": "8001",
-  "StuboProtocol": "http",
-  "Environment": "production"
+  "stuboHost": "localhost",
+  "stuboPort": "8001",
+  "stuboProtocol": "http",
+  "environment": "dev",
+  "debug": true
 }

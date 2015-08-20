@@ -18,6 +18,7 @@ type Configuration struct {
 	StuboHost     string
 	StuboPort     string
 	Environment   string
+	Debug         bool
 }
 
 // StuboConfig stores target Stubo instance details (protocol, hostname, port, etc..)
@@ -49,6 +50,11 @@ func main() {
 	} else {
 		// The TextFormatter is default
 		log.SetFormatter(&log.TextFormatter{})
+	}
+
+	if StuboConfig.Debug == true {
+		log.SetLevel(log.DebugLevel)
+		log.Info("Starting server with debug mode initiated...")
 	}
 	// looking for option args when starting App
 	// like ./lgc -port=":3000" would start on port 3000

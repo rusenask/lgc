@@ -56,7 +56,7 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 
 	if ok {
@@ -90,7 +90,7 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 
 	if ok {
@@ -131,7 +131,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 
 	if ok {
@@ -164,7 +164,7 @@ func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 
 	if ok {
@@ -204,7 +204,7 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// logging
 	method := trace()
 	log.WithFields(log.Fields{
-		"method":        method,
+		"func":          method,
 		"delayPolicies": data,
 	}).Info("Deleting delay policies")
 
@@ -223,8 +223,8 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 			responses = append(responses, dp.Name)
 		} else {
 			log.WithFields(log.Fields{
-				"method": method,
-				"error":  err.Error(),
+				"func":  method,
+				"error": err.Error(),
 			}).Warn("Failed to delete delay policy")
 		}
 	}
@@ -232,7 +232,7 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	message := fmt.Sprintf("Deleted %d delay policies: ", len(responses)) + strings.Join(responses, " ")
 
 	log.WithFields(log.Fields{
-		"method":   method,
+		"func":     method,
 		"response": message,
 	}).Info("Delay policies deleted")
 	// creating structure for the response
@@ -255,7 +255,7 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": queryArgs,
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 
 	handlersContextLogger.Info("Begin session...")
@@ -297,7 +297,7 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	handlersContextLogger := log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	})
 	scenario, ok := r.URL.Query()["scenario"]
 	if ok {
@@ -325,7 +325,7 @@ func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{
 		"url_query": r.URL.Query(),
 		"url_path":  r.URL.Path,
-		"method":    method,
+		"func":      method,
 	}).Info("Getting scenarios")
 
 	response, err := client.getScenarios()

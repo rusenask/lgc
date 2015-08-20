@@ -3,7 +3,7 @@
 Proxy to work with stubo API v2 (which is still under development). After setting
 it up - it will translate all legacy API calls to new format REST API calls.
 
-Example:
+### Example
 LGC proxy running on port 3000 and Stubo with API v2 running on port 8001.
 
 Client calls:
@@ -14,6 +14,21 @@ This then gets translated into:
 
 LGC gets response and sends it back to the client.
 
+### A little more complex example
+Client calls:
+* http://localhost:3000/stubo/api/begin/session?scenario=scenario_x&session=session_x&mode=record
+
+Due to the fact that current v2 API requires user to create a scenario which then could hold session,
+this API call results in two calls to stubo:
+* __URL__:          http://localhost:8001/stubo/api/v2/scenarios
+* __Method__:       PUT
+* __Request body__:  {"scenario": "scenario_x"}
+
+Then, after scenario is created, a second call to begin session is made:
+* __URL__:          http://localhost:8001/stubo/api/v2/scenarios/objects/scenario_x/action
+* __Method__:       POST
+* __Request body__:  {"begin": null, "session": "session_x",  "mode": "record"}
+
 
 ### Requirements
 go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
@@ -22,15 +37,16 @@ go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web 
 
 go get github.com/meatballhat/negroni-logrus - Negroni/Logrus middleware for merging
 negroni logs with application logging. This provides additional data such as status codes,
-time taken for response and latency 
+time taken for response and latency
 ### Configuration
 
 Edit conf.json.example with your stubo instance details:
 {
   "StuboHost": "localhost", // your stubo hostname
   "StuboPort": "8001",  // your stubo port
-  "StuboProtocol": "http" // protocol (should probably be http anyway so leave it)
-  "Environment": "production"
+  "StuboProtocol": "http", // protocol (should probably be http anyway so leave it)
+  "Environment": "production",
+  "debug": true
 }
 Rename conf.json.example to conf.json
 
@@ -39,6 +55,8 @@ Default LGC proxy port is 3000. You are expected to change it during server star
 Would change it to this port. Remember to change your original stubo instance port before setting it to 8001.
 Environment variable sets some logging defaults (such as format). Although you can
 modify logging formatter yourself in server.go file.
+
+Debug - when enabled outputs more information about request forming before dispatching them to stubo.
 
 
 ### Current legacy API translations
