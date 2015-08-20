@@ -3,7 +3,7 @@
 Proxy to work with stubo API v2 (which is still under development). After setting
 it up - it will translate all legacy API calls to new format REST API calls.
 
-Example:
+### Example
 LGC proxy running on port 3000 and Stubo with API v2 running on port 8001.
 
 Client calls:
@@ -13,6 +13,21 @@ This then gets translated into:
 * http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
 
 LGC gets response and sends it back to the client.
+
+### A little more complex example
+Client calls:
+* http://localhost:3000/stubo/api/begin/session?scenario=scenario_x&session=session_x&mode=record
+
+Due to the fact that current v2 API requires user to create a scenario which then could hold session,
+this API call results in two calls to stubo:
+* __URL__:          http://localhost:8001/stubo/api/v2/scenarios
+* __Method__:       PUT
+* __Request body__:  {"scenario": "scenario_x"}
+
+Then, after scenario is created, a second call to begin session is made:
+* __URL__:          http://localhost:8001/stubo/api/v2/scenarios/objects/scenario_x/action
+* __Method__:       POST
+* __Request body__:  {"begin": null, "session": "session_x",  "mode": "record"}
 
 
 ### Requirements
