@@ -72,6 +72,7 @@ func main() {
 	}).Info("LGC is starting")
 
 	mux := bone.New()
+	mux.Post("/stubo/api/put/stub", http.HandlerFunc(putStubHandler))
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
 	mux.Get("/stubo/api/delete/stubs", http.HandlerFunc(deleteStubsHandler))
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
