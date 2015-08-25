@@ -12,6 +12,7 @@ import (
 
 type params struct {
 	path, body, method string
+	bodyBytes          []byte
 	headers            map[string]string
 }
 
