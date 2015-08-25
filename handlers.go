@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -116,6 +117,51 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
+	}
+}
+
+func putStubHandler(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.URL.Query()["session"]
+	client := &Client{&http.Client{}}
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"func":      method,
+	})
+	if ok {
+		//creating MAP for headers
+		headers := make(map[string]string)
+		ScenarioSession := session[0]
+		slices := strings.Split(ScenarioSession, ":")
+		scenario := slices[0]
+		headers["session"] = slices[1]
+
+		// getting request Body
+		defer r.Body.Close()
+		// reading resposne body
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			// logging read error
+			log.WithFields(log.Fields{
+				"error": err.Error(),
+				"func":  method,
+			}).Warn("Failed to read request body!")
+		}
+		// putting stub
+		response, err := client.putStub(scenario, body, headers)
+		// checking whether we got good response
+		httperror(w, r, err)
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+
+	} else {
+		msg := "Bad request, missing session name."
 		handlersContextLogger.Warn(msg)
 		http.Error(w, msg, 400)
 	}
