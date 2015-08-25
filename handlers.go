@@ -152,6 +152,9 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		scenario := slices[0]
 		headers["session"] = slices[1]
+		// removing session from the MAP
+		delete(r.URL.Query(), "session")
+
 		// these URL query arguments are expected and should be converted to headers
 		expectedHeaders := map[string]bool{
 			"ext_module":        true,
