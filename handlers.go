@@ -142,6 +142,14 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		headers := make(map[string]string)
 		ScenarioSession := session[0]
 		slices := strings.Split(ScenarioSession, ":")
+		if len(slices) < 2 {
+			msg := "Bad request, missing session or scenario name. When under proxy, please use 'scenario:session' format in your" +
+				"URL query, such as '/stubo/api/put/stub?session=scenario:session_name' "
+			handlersContextLogger.Warn(msg)
+			log.Warn(msg)
+			http.Error(w, msg, 400)
+			return
+		}
 		scenario := slices[0]
 		headers["session"] = slices[1]
 
