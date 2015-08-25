@@ -22,15 +22,37 @@ Client calls:
 
 Due to the fact that current v2 API requires user to create a scenario which then could hold session,
 this API call results in two calls to stubo:
-* __URL__:          http://localhost:8001/stubo/api/v2/scenarios
-* __Method__:       PUT
+* __URL__:           http://localhost:8001/stubo/api/v2/scenarios
+* __Method__:        PUT
 * __Request body__:  {"scenario": "scenario_x"}
 
 Then, after scenario is created, a second call to begin session is made:
-* __URL__:          http://localhost:8001/stubo/api/v2/scenarios/objects/scenario_x/action
-* __Method__:       POST
+* __URL__:           http://localhost:8001/stubo/api/v2/scenarios/objects/scenario_x/action
+* __Method__:        POST
 * __Request body__:  {"begin": null, "session": "session_x",  "mode": "record"}
 
+### Put Stub example
+Client calls (POST method):
+* http://localhost:3000/stubo/api/put/stub?session=sc1:session_name&some=yes&stateful=true&additionalparam=true
+
+It is expected that session and stateful parameters should be transformed into headers to comply with API v2 standard.
+However, other parameters must remain in the URL arguments list and recorded by Stubo. Proxy transforms this into:
+* __URL__:             http://localhost:8001/stubo/api/v2/scenarios/objects/sc1/stubs?some=yes&additionalparam=true
+* __Method__:          PUT
+* __Request body__:    remains the same, bytes get just passed to new request
+* __Request headers__: session: session_name
+                       stateful: true  
+
+Stubo then sends back response and proxy passes those bytes back to the client:
+```javascript
+{  "version": "0.6.6",
+   "data": {
+        "message": {
+            "status": "updated", "msg": "Updated with stateful response",
+            "key": "55dc6cc1938fbef2e62d875c"}
+          }
+}
+```
 
 ### Requirements
 go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
@@ -77,7 +99,7 @@ Debug - when enabled outputs more information about request forming before dispa
     + delay_policy =  delay policy name (optional) __implemented__
     + stateful = treat duplicate stubs as stateful otherwise ignore duplicates if stateful=false (default true, optional) __implemented__
     + tracking_level: full or normal (optional, overrides host or global setting) __implemented__
-    + any user args will be made avaliable to the matcher & response templates and any user exit code __implemented__    
+    + any user args will be made avaliable to the matcher & response templates and any user exit code __implemented__
 * get/stublist - __implemented__
 * put/delay_policy - not implemented
 * get/delay_policy:

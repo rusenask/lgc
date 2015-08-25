@@ -71,17 +71,24 @@ func main() {
 		"ProxyPort": port,
 	}).Info("LGC is starting")
 
+	client := &Client{&http.Client{}}
+	mux := getRouter(HandlerHTTPClient{*client})
+
+	n := negroni.Classic()
+	n.Use(negronilogrus.NewMiddleware())
+	n.UseHandler(mux)
+	n.Run(*port)
+}
+
+func getRouter(h HandlerHTTPClient) *bone.Mux {
 	mux := bone.New()
-	mux.Post("/stubo/api/put/stub", http.HandlerFunc(putStubHandler))
-	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(stublistHandler))
-	mux.Get("/stubo/api/delete/stubs", http.HandlerFunc(deleteStubsHandler))
+	mux.Post("/stubo/api/put/stub", http.HandlerFunc(h.putStubHandler))
+	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(h.stublistHandler))
+	mux.Get("/stubo/api/delete/stubs", http.HandlerFunc(h.deleteStubsHandler))
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))
 	mux.Get("/stubo/api/delete/delay_policy", http.HandlerFunc(deleteDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(beginSessionHandler))
 	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
 	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenariosHandler))
-	n := negroni.Classic()
-	n.Use(negronilogrus.NewMiddleware())
-	n.UseHandler(mux)
-	n.Run(*port)
+	return mux
 }

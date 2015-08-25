@@ -13,6 +13,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// HandlerHTTPClient is used to inject http.Client to handlers
+type HandlerHTTPClient struct {
+	http Client
+}
+
 // DelayPolicy structure for gettting delay policy references
 type DelayPolicy struct {
 	Name string `json:"name"`
@@ -50,7 +55,7 @@ func trace() string {
 }
 
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
-func stublistHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 
 	// setting context logger
@@ -64,7 +69,7 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		handlersContextLogger.Info("Got query")
 
-		client := &Client{&http.Client{}}
+		client := h.http
 
 		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
@@ -85,7 +90,7 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 
 // deleteStubsHandler deletes scenario stubs, e.g.: stubo/api/delete/stubs?scenario=first
 // optional arguments host=your_host, force=true/false (defaults to false)
-func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	// setting context logger
 	method := trace()
@@ -99,7 +104,7 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		handlersContextLogger.Info("Got query")
 
 		// expecting params - scenario, host, force
-		client := &Client{&http.Client{}}
+		client := h.http
 		var p APIParams
 		p.name = scenario[0]
 		force, ok := r.URL.Query()["force"]
@@ -126,15 +131,16 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 // putStubHandler takes in POST request from client, transforms URL query arguments
 // to header values and calls another function that calls Stubo API v2, returns
 // response bytes without unmarshalling/marshalling them
-func putStubHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request) {
+	urlQuery := r.URL.Query()
 	// getting session name
-	session, ok := r.URL.Query()["session"]
-	client := &Client{&http.Client{}}
+	session, ok := urlQuery["session"]
+	client := h.http
 
 	// setting context logger
 	method := trace()
 	handlersContextLogger := log.WithFields(log.Fields{
-		"url_query": r.URL.Query(),
+		"url_query": urlQuery,
 		"url_path":  r.URL.Path,
 		"func":      method,
 	})
@@ -144,6 +150,7 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		headers := make(map[string]string)
 		ScenarioSession := session[0]
 		slices := strings.Split(ScenarioSession, ":")
+		// check whether user has supplied scenario name as well
 		if len(slices) < 2 {
 			msg := "Bad request, missing session or scenario name. When under proxy, please use 'scenario:session' format in your" +
 				"URL query, such as '/stubo/api/put/stub?session=scenario:session_name' "
@@ -155,7 +162,7 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		scenario := slices[0]
 		headers["session"] = slices[1]
 		// removing session from the MAP
-		delete(r.URL.Query(), "session")
+		delete(urlQuery, "session")
 
 		// these URL query arguments are expected and should be converted to headers
 		expectedHeaders := map[string]bool{
@@ -166,7 +173,7 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		var bufferArgs bytes.Buffer
 		// getting more headers and forming query argument
-		for key, value := range r.URL.Query() {
+		for key, value := range urlQuery {
 			// if key is in expected headers (Stubo expects these to be in headers
 			// instead of URL query in API v2, transforming them..)
 			if expectedHeaders[key] {

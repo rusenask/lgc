@@ -2,45 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"reflect"
 	"strings"
 	"testing"
 )
-
-func expect(t *testing.T, a interface{}, b interface{}) {
-	if a != b {
-		t.Errorf("Expected %v (type %v) - Got %v (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
-	}
-}
-
-func refute(t *testing.T, a interface{}, b interface{}) {
-	if a == b {
-		t.Errorf("Did not expect %v (type %v) - Got %v (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
-	}
-}
-
-func testTools(code int, body string) (*httptest.Server, *Client) {
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(code)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, body)
-	}))
-
-	tr := &http.Transport{
-		Proxy: func(req *http.Request) (*url.URL, error) {
-			return url.Parse(server.URL)
-		},
-	}
-	httpClient := &http.Client{Transport: tr}
-
-	client := &Client{httpClient}
-	StuboURI = "http://localhost:3000"
-	return server, client
-}
 
 func TestGetScenarioStubs(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
@@ -223,5 +187,70 @@ func TestMakeRequestFail(t *testing.T) {
 	var s params
 	StuboURI = "malformed url"
 	_, err := c.makeRequest(s)
+	refute(t, err, nil)
+}
+
+func TestPutStub(t *testing.T) {
+	testData := `{  "version": "0.6.6",
+								  "data": {
+								        "message": {
+								            "status": "updated", "msg": "Updated with stateful response",
+								            "key": "55dc6cc1938fbef2e62d875c"}
+								          }
+								  }`
+	server, c := testTools(201, testData)
+	defer server.Close()
+
+	scenario := "scenario1"
+	args := "args=1&arg2=2"
+	body := []byte("some body here")
+
+	headers := make(map[string]string)
+	headers["session"] = "session_name"
+	headers["stateful"] = "true"
+	// putting stub
+	response, err := c.putStub(scenario, args, body, headers)
+	resp := string(response)
+
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
+
+func TestPutStubFailNoSession(t *testing.T) {
+	testData := `foo`
+	server, c := testTools(200, testData)
+	defer server.Close()
+
+	scenario := "scenario1"
+	args := "args=1&arg2=2"
+	body := []byte("some body here")
+
+	headers := make(map[string]string)
+	// omitting session key...
+	headers["stateful"] = "true"
+	// putting stub
+	_, err := c.putStub(scenario, args, body, headers)
+
+	expect(t, strings.Contains(err.Error(), "scenario or session not supplied"), true)
+	refute(t, err, nil)
+}
+
+func TestPutStubFailNoScenario(t *testing.T) {
+	testData := `foo`
+	server, c := testTools(200, testData)
+	defer server.Close()
+
+	scenario := ""
+	args := "args=1&arg2=2"
+	body := []byte("some body here")
+
+	headers := make(map[string]string)
+	// omitting session key...
+	headers["stateful"] = "true"
+	headers["session"] = "some_session"
+	// putting stub
+	_, err := c.putStub(scenario, args, body, headers)
+
+	expect(t, strings.Contains(err.Error(), "scenario or session not supplied"), true)
 	refute(t, err, nil)
 }
