@@ -182,3 +182,24 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusOK)
 }
+
+func TestGetDelayPolicyHandler(t *testing.T) {
+	testData := `delay`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get specific delay policy
+	req, err := http.NewRequest("GET", "/stubo/api/get/delay_policy?name=somename", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
