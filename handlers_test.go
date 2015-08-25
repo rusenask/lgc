@@ -79,3 +79,23 @@ func TestDeleteStubsHandler(t *testing.T) {
 	expect(t, strings.Contains(string(body), "deleted"), true)
 	expect(t, respRec.Code, http.StatusOK)
 }
+
+func TestDeleteStubsHandlerFail(t *testing.T) {
+	testData := `deleted`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get scenario stubs
+	req, err := http.NewRequest("GET", "/stubo/api/delete/stubs", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusBadRequest)
+}
