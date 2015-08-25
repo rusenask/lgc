@@ -71,7 +71,8 @@ Debug - when enabled outputs more information about request forming before dispa
 * end/sessions - __implemented__
 * put/scenarios - not implemented
 * get/scenarios - __implemented__
-* put/stub - not present in API v2
+* put/stub:
+    + basic insertion with scenario_name:session_name - __implemented__
 * get/stublist - __implemented__
 * put/delay_policy - not implemented
 * get/delay_policy:
