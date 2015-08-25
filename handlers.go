@@ -152,6 +152,13 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		scenario := slices[0]
 		headers["session"] = slices[1]
+		// these URL query arguments are expected and should be converted to headers
+		expectedHeaders := map[string]bool{
+			"ext_module":        true,
+			"delay_policy":      true,
+			"stateful":          true,
+			"stub_created_date": true,
+		}
 
 		// getting request Body
 		defer r.Body.Close()
