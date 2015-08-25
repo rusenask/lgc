@@ -159,6 +159,18 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 			"stateful":          true,
 			"stub_created_date": true,
 		}
+		var bufferArgs bytes.Buffer
+		// getting more headers and forming query argument
+		for key, value := range r.URL.Query() {
+			// if key is in expected headers (Stubo expects these to be in headers
+			// instead of URL query in API v2, transforming them..)
+			if expectedHeaders[key] {
+				headers[key] = value[0]
+			} else {
+				bufferArgs.WriteString(key + "=" + value[0] + "&")
+			}
+		}
+		args := bufferArgs.String()
 
 		// getting request Body
 		defer r.Body.Close()
