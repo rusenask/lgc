@@ -99,3 +99,23 @@ func TestDeleteStubsHandlerFail(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusBadRequest)
 }
+
+func TestPutStubsHandlerFail(t *testing.T) {
+	testData := `inserted`
+	server, c := testTools(201, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get scenario stubs
+	req, err := http.NewRequest("POST", "/stubo/api/put/stub", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusBadRequest)
+}
