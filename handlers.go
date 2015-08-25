@@ -13,6 +13,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// HandlerHttpClient is used to inject http.Client to handlers
+type HandlerHttpClient struct {
+	http Client
+}
+
 // DelayPolicy structure for gettting delay policy references
 type DelayPolicy struct {
 	Name string `json:"name"`
@@ -50,7 +55,7 @@ func trace() string {
 }
 
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
-func stublistHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHttpClient) stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 
 	// setting context logger
@@ -64,7 +69,7 @@ func stublistHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		handlersContextLogger.Info("Got query")
 
-		client := &Client{&http.Client{}}
+		client := h.http
 
 		// expecting one param - scenario
 		response, err := client.getScenarioStubs(scenario[0])
