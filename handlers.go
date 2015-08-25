@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -116,6 +118,87 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 	} else {
 		msg := "Scenario name not provided."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
+	}
+}
+
+// putStubHandler takes in POST request from client, transforms URL query arguments
+// to header values and calls another function that calls Stubo API v2, returns
+// response bytes without unmarshalling/marshalling them
+func putStubHandler(w http.ResponseWriter, r *http.Request) {
+	// getting session name
+	session, ok := r.URL.Query()["session"]
+	client := &Client{&http.Client{}}
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"func":      method,
+	})
+	if ok {
+		// session name is present, moving forward
+		//creating MAP for headers
+		headers := make(map[string]string)
+		ScenarioSession := session[0]
+		slices := strings.Split(ScenarioSession, ":")
+		if len(slices) < 2 {
+			msg := "Bad request, missing session or scenario name. When under proxy, please use 'scenario:session' format in your" +
+				"URL query, such as '/stubo/api/put/stub?session=scenario:session_name' "
+			handlersContextLogger.Warn(msg)
+			log.Warn(msg)
+			http.Error(w, msg, 400)
+			return
+		}
+		scenario := slices[0]
+		headers["session"] = slices[1]
+		// removing session from the MAP
+		delete(r.URL.Query(), "session")
+
+		// these URL query arguments are expected and should be converted to headers
+		expectedHeaders := map[string]bool{
+			"ext_module":        true,
+			"delay_policy":      true,
+			"stateful":          true,
+			"stub_created_date": true,
+		}
+		var bufferArgs bytes.Buffer
+		// getting more headers and forming query argument
+		for key, value := range r.URL.Query() {
+			// if key is in expected headers (Stubo expects these to be in headers
+			// instead of URL query in API v2, transforming them..)
+			if expectedHeaders[key] {
+				headers[key] = value[0]
+			} else {
+				bufferArgs.WriteString(key + "=" + value[0] + "&")
+			}
+		}
+		args := bufferArgs.String()
+
+		// getting request Body
+		defer r.Body.Close()
+		// reading resposne body
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			// logging read error
+			log.WithFields(log.Fields{
+				"error": err.Error(),
+				"func":  method,
+			}).Warn("Failed to read request body!")
+		}
+		// putting stub
+		response, err := client.putStub(scenario, args, body, headers)
+		// checking whether we got good response
+		httperror(w, r, err)
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+
+	} else {
+		msg := "Bad request, missing session name."
 		handlersContextLogger.Warn(msg)
 		http.Error(w, msg, 400)
 	}

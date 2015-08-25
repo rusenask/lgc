@@ -12,6 +12,7 @@ import (
 
 type params struct {
 	path, body, method string
+	bodyBytes          []byte
 	headers            map[string]string
 }
 
@@ -38,6 +39,35 @@ func (e *errorString) Error() string {
 // New returns an error that formats as the given text.
 func New(text string) error {
 	return &errorString{text}
+}
+
+// putStub transparently passes request body to Stubo
+func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
+	if scenario != "" && headers["session"] != "" {
+		var s params
+
+		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs?" + args
+
+		s.path = path
+		s.headers = headers
+		s.method = "PUT"
+
+		// assigning body in bytes
+		s.bodyBytes = body
+		// setting logger
+		method := trace()
+		log.WithFields(log.Fields{
+			"scenario":      scenario,
+			"session":       headers["session"],
+			"urlPath":       path,
+			"headers":       "",
+			"requestMethod": "GET",
+			"func":          method,
+		}).Debug("Adding stub to scenario")
+
+		return c.makeRequest(s)
+	}
+	return []byte(""), errors.New("api.putStub error: scenario or session not supplied")
 }
 
 // getStubList calls to Stubo's REST API
@@ -82,7 +112,6 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		}
 		s.headers = headers
 		s.method = "DELETE"
-		fmt.Println(s.headers)
 
 		// setting logger
 		method := trace()
@@ -260,9 +289,13 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
+// makeRequest takes Params struct as paramateres and makes request to Stubo
+// then gets response bytes and returns to caller
 func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
-	var jsonStr = []byte(s.body)
+	if s.bodyBytes == nil {
+		s.bodyBytes = []byte(s.body)
+	}
 
 	// logging get transformation
 	method := trace()
@@ -274,7 +307,7 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 		"requestMethod": s.method,
 	}).Info("Transforming URL, preparing for request to Stubo")
 
-	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(s.bodyBytes))
 	if s.headers != nil {
 		for k, v := range s.headers {
 			req.Header.Set(k, v)
