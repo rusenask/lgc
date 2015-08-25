@@ -33,7 +33,7 @@ Then, after scenario is created, a second call to begin session is made:
 
 ### Put Stub example
 Client calls (POST method):
-* http://localhost:3000/stubo/api/put/stub?session=session_name&some=yes&stateful=true&additionalparam=true
+* http://localhost:3000/stubo/api/put/stub?session=sc1:session_name&some=yes&stateful=true&additionalparam=true
 
 It is expected that session and stateful parameters should be transformed into headers to comply with API v2 standard.
 However, other parameters must remain in the URL arguments list and recorded by Stubo. Proxy transforms this into:
