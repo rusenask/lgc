@@ -225,3 +225,29 @@ func TestMakeRequestFail(t *testing.T) {
 	_, err := c.makeRequest(s)
 	refute(t, err, nil)
 }
+
+func TestPutStub(t *testing.T) {
+	testData := `{  "version": "0.6.6",
+								  "data": {
+								        "message": {
+								            "status": "updated", "msg": "Updated with stateful response",
+								            "key": "55dc6cc1938fbef2e62d875c"}
+								          }
+								  }`
+	server, c := testTools(201, testData)
+	defer server.Close()
+
+	scenario := "scenario1"
+	args := "args=1&arg2=2"
+	body := []byte("some body here")
+
+	headers := make(map[string]string)
+	headers["session"] = "session_name"
+	headers["stateful"] = "true"
+	// putting stub
+	response, err := c.putStub(scenario, args, body, headers)
+	resp := string(response)
+
+	expect(t, strings.Contains(resp, "data"), true)
+	expect(t, err, nil)
+}
