@@ -42,11 +42,11 @@ func New(text string) error {
 }
 
 // putStub transparently passes request body to Stubo
-func (c *Client) putStub(scenario string, body []byte, headers map[string]string) ([]byte, error) {
+func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
 	if scenario != "" && headers["session"] != "" {
 		var s params
 
-		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs"
+		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs?" + args
 
 		s.path = path
 		s.headers = headers
