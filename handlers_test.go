@@ -15,7 +15,7 @@ func setup(c Client) *bone.Mux {
 	return m
 }
 
-func TestStublistHandler(t *testing.T) {
+func TestStublistHandlerNoScenario(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
 	server, c := testTools(200, testData)
 	m := setup(*c)
@@ -33,4 +33,24 @@ func TestStublistHandler(t *testing.T) {
 	m.ServeHTTP(respRec, req)
 
 	expect(t, respRec.Code, http.StatusBadRequest)
+}
+
+func TestStublistHandler(t *testing.T) {
+	testData := `{"version":"1.2.3","data": [{"name": "scenario1"}]}`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get scenario stubs
+	req, err := http.NewRequest("GET", "/stubo/api/get/stublist?scenario=some_name", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
 }
