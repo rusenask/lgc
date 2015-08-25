@@ -122,9 +122,14 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// putStubHandler takes in POST request from client, transforms URL query arguments
+// to header values and calls another function that calls Stubo API v2, returns
+// response bytes without unmarshalling/marshalling them
 func putStubHandler(w http.ResponseWriter, r *http.Request) {
+	// getting session name
 	session, ok := r.URL.Query()["session"]
 	client := &Client{&http.Client{}}
+
 	// setting context logger
 	method := trace()
 	handlersContextLogger := log.WithFields(log.Fields{
