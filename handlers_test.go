@@ -64,7 +64,7 @@ func TestDeleteStubsHandler(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
+	//Testing delete scenario stubs
 	req, err := http.NewRequest("GET", "/stubo/api/delete/stubs?scenario=some_name", nil)
 	// no error is expected
 	expect(t, err, nil)
@@ -87,7 +87,7 @@ func TestDeleteStubsHandlerFail(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
+	//Testing delete scenario stubs
 	req, err := http.NewRequest("GET", "/stubo/api/delete/stubs", nil)
 	// no error is expected
 	expect(t, err, nil)
@@ -107,7 +107,7 @@ func TestPutStubsHandlerFail(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
+	//Testing put stub
 	req, err := http.NewRequest("POST", "/stubo/api/put/stub", nil)
 	// no error is expected
 	expect(t, err, nil)
@@ -127,7 +127,7 @@ func TestPutStubsHandlerSuccess(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
+	//Testing put stub
 	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=scenario:session",
 		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
 	// no error is expected
@@ -148,7 +148,7 @@ func TestPutStubsHandlerNoScenario(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
+	//Testing put stub
 	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=session",
 		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
 	// no error is expected
@@ -169,8 +169,8 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 
 	defer server.Close()
 
-	//Testing get scenario stubs
-	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=session&valued=2&value=4&ext_module=some_module",
+	//Testing put stub
+	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=scenario:session&valued=2&value=4&ext_module=some_module",
 		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
 	// no error is expected
 	expect(t, err, nil)
@@ -180,5 +180,45 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusBadRequest)
+	expect(t, respRec.Code, http.StatusOK)
+}
+
+func TestGetDelayPolicyHandler(t *testing.T) {
+	testData := `delay`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get specific delay policy
+	req, err := http.NewRequest("GET", "/stubo/api/get/delay_policy?name=somename", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
+func TestGetAllDelayPolicyHandler(t *testing.T) {
+	testData := `delay`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get all delay policies
+	req, err := http.NewRequest("GET", "/stubo/api/get/delay_policy", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
 }

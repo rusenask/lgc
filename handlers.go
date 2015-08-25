@@ -213,9 +213,9 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 
 // getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
-func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
-	client := &Client{&http.Client{}}
+	client := h.http
 	// setting context logger
 	method := trace()
 	handlersContextLogger := log.WithFields(log.Fields{
@@ -225,6 +225,7 @@ func getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if ok {
+
 		handlersContextLogger.Info("Got query")
 		// expecting one param - scenario
 		response, err := client.getDelayPolicy(name[0])
