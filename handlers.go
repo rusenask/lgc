@@ -90,7 +90,7 @@ func (h HandlerHttpClient) stublistHandler(w http.ResponseWriter, r *http.Reques
 
 // deleteStubsHandler deletes scenario stubs, e.g.: stubo/api/delete/stubs?scenario=first
 // optional arguments host=your_host, force=true/false (defaults to false)
-func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHttpClient) deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	// setting context logger
 	method := trace()
@@ -104,7 +104,7 @@ func deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 		handlersContextLogger.Info("Got query")
 
 		// expecting params - scenario, host, force
-		client := &Client{&http.Client{}}
+		client := h.http
 		var p APIParams
 		p.name = scenario[0]
 		force, ok := r.URL.Query()["force"]
