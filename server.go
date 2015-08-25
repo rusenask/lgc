@@ -72,7 +72,7 @@ func main() {
 	}).Info("LGC is starting")
 
 	client := &Client{&http.Client{}}
-	mux := getRouter(HandlerHttpClient{*client})
+	mux := getRouter(HandlerHTTPClient{*client})
 
 	n := negroni.Classic()
 	n.Use(negronilogrus.NewMiddleware())
@@ -80,9 +80,9 @@ func main() {
 	n.Run(*port)
 }
 
-func getRouter(h HandlerHttpClient) *bone.Mux {
+func getRouter(h HandlerHTTPClient) *bone.Mux {
 	mux := bone.New()
-	mux.Post("/stubo/api/put/stub", http.HandlerFunc(putStubHandler))
+	mux.Post("/stubo/api/put/stub", http.HandlerFunc(h.putStubHandler))
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(h.stublistHandler))
 	mux.Get("/stubo/api/delete/stubs", http.HandlerFunc(h.deleteStubsHandler))
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(getDelayPolicyHandler))

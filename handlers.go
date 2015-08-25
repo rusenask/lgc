@@ -13,8 +13,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-// HandlerHttpClient is used to inject http.Client to handlers
-type HandlerHttpClient struct {
+// HandlerHTTPClient is used to inject http.Client to handlers
+type HandlerHTTPClient struct {
 	http Client
 }
 
@@ -55,7 +55,7 @@ func trace() string {
 }
 
 // stublistHandler gets stubs, e.g.: stubo/api/get/stublist?scenario=first
-func (h HandlerHttpClient) stublistHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) stublistHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 
 	// setting context logger
@@ -90,7 +90,7 @@ func (h HandlerHttpClient) stublistHandler(w http.ResponseWriter, r *http.Reques
 
 // deleteStubsHandler deletes scenario stubs, e.g.: stubo/api/delete/stubs?scenario=first
 // optional arguments host=your_host, force=true/false (defaults to false)
-func (h HandlerHttpClient) deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) deleteStubsHandler(w http.ResponseWriter, r *http.Request) {
 	scenario, ok := r.URL.Query()["scenario"]
 	// setting context logger
 	method := trace()
@@ -131,11 +131,11 @@ func (h HandlerHttpClient) deleteStubsHandler(w http.ResponseWriter, r *http.Req
 // putStubHandler takes in POST request from client, transforms URL query arguments
 // to header values and calls another function that calls Stubo API v2, returns
 // response bytes without unmarshalling/marshalling them
-func putStubHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request) {
 	urlQuery := r.URL.Query()
 	// getting session name
 	session, ok := urlQuery["session"]
-	client := &Client{&http.Client{}}
+	client := h.http
 
 	// setting context logger
 	method := trace()
