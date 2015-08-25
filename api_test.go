@@ -251,3 +251,22 @@ func TestPutStub(t *testing.T) {
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
 }
+
+func TestPutStubFailNoSession(t *testing.T) {
+	testData := `foo`
+	server, c := testTools(200, testData)
+	defer server.Close()
+
+	scenario := "scenario1"
+	args := "args=1&arg2=2"
+	body := []byte("some body here")
+
+	headers := make(map[string]string)
+	// omitting session key...
+	headers["stateful"] = "true"
+	// putting stub
+	_, err := c.putStub(scenario, args, body, headers)
+
+	expect(t, strings.Contains(err.Error(), "scenario or session not supplied"), true)
+	refute(t, err, nil)
+}
