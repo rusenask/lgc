@@ -73,6 +73,11 @@ Debug - when enabled outputs more information about request forming before dispa
 * get/scenarios - __implemented__
 * put/stub:
     + basic insertion with scenario_name:session_name - __implemented__
+    + ext_module = external module name without .py extenstion (optional) __implemented__
+    + delay_policy =  delay policy name (optional) __implemented__
+    + stateful = treat duplicate stubs as stateful otherwise ignore duplicates if stateful=false (default true, optional) __implemented__
+    + tracking_level: full or normal (optional, overrides host or global setting) __implemented__
+    + any user args will be made avaliable to the matcher & response templates and any user exit code __implemented__    
 * get/stublist - __implemented__
 * put/delay_policy - not implemented
 * get/delay_policy:
