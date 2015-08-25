@@ -188,7 +188,7 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 			}).Warn("Failed to read request body!")
 		}
 		// putting stub
-		response, err := client.putStub(scenario, body, headers)
+		response, err := client.putStub(scenario, args, body, headers)
 		// checking whether we got good response
 		httperror(w, r, err)
 		// setting resposne header
