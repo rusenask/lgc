@@ -170,7 +170,7 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 	defer server.Close()
 
 	//Testing get scenario stubs
-	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=session&valued=2&value=4&ext_module=some_module",
+	req, err := http.NewRequest("POST", "/stubo/api/put/stub?session=scenario:session&valued=2&value=4&ext_module=some_module",
 		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
 	// no error is expected
 	expect(t, err, nil)
@@ -180,5 +180,5 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusBadRequest)
+	expect(t, respRec.Code, http.StatusOK)
 }
