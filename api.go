@@ -82,7 +82,6 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		}
 		s.headers = headers
 		s.method = "DELETE"
-		fmt.Println(s.headers)
 
 		// setting logger
 		method := trace()
@@ -260,9 +259,13 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
+// makeRequest takes Params struct as paramateres and makes request to Stubo
+// then gets response bytes and returns to caller
 func (c *Client) makeRequest(s params) ([]byte, error) {
 	url := StuboURI + s.path
-	var jsonStr = []byte(s.body)
+	if s.bodyBytes == nil {
+		s.bodyBytes = []byte(s.body)
+	}
 
 	// logging get transformation
 	method := trace()
@@ -274,7 +277,7 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 		"requestMethod": s.method,
 	}).Info("Transforming URL, preparing for request to Stubo")
 
-	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest(s.method, url, bytes.NewBuffer(s.bodyBytes))
 	if s.headers != nil {
 		for k, v := range s.headers {
 			req.Header.Set(k, v)
