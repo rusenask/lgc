@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -138,6 +139,7 @@ func putStubHandler(w http.ResponseWriter, r *http.Request) {
 		"func":      method,
 	})
 	if ok {
+		// session name is present, moving forward
 		//creating MAP for headers
 		headers := make(map[string]string)
 		ScenarioSession := session[0]
