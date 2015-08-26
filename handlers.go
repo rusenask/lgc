@@ -228,6 +228,20 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// getSession looks for session both in URL query and request headers
+func getSession(r *http.Request) (string, bool) {
+	urlQuery := r.URL.Query()
+	// getting session name
+	session, ok := urlQuery["session"]
+	if ok {
+		return session[0], true
+	}
+	sessionName := r.Header.Get("Stubo-Request-Session")
+	if sessionName != "" {
+		return sessionName, true
+	}
+	return "", false
+}
 // getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
 func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
