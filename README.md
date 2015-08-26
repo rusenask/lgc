@@ -127,7 +127,7 @@ Debug - when enabled outputs more information about request forming before dispa
     + tracking_level: full or normal (optional, overrides host or global setting) __implemented__
     + any user args will be made available to the matcher & response templates and any user exit code __implemented__
 * get/stublist - __implemented__
-* put/delay_policy - not implemented
+* put/delay_policy - __implemented__
 * get/delay_policy:
     + name provided - __implemented__
     + name not provided (should list all delay policies) - __implemented__
