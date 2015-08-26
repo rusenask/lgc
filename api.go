@@ -41,6 +41,24 @@ func New(text string) error {
 	return &errorString{text}
 }
 
+func (c *Client) getStubResponse(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
+	if scenario != "" && headers["session"] != "" {
+		var s params
+
+		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs?" + args
+
+		s.path = path
+		s.headers = headers
+		s.method = "POST"
+
+		// assigning body in bytes
+		s.bodyBytes = body
+
+		c.makeRequest(s)
+	}
+	return []byte(""), errors.New("api.putStub error: scenario or session not supplied")
+}
+
 // putStub transparently passes request body to Stubo
 func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
 	if scenario != "" && headers["session"] != "" {
