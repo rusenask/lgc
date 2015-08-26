@@ -246,9 +246,9 @@ func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.
 
 // deleteDelayPolicyHandler - deletes delay policy
 // stubo/api/delete/delay_policy?name=slow
-func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
-	client := &Client{&http.Client{}}
+	client := h.http
 
 	// setting context logger
 	method := trace()
@@ -338,7 +338,7 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 
 // begin/session (GET, POST)
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
-func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
 
 	// setting context logger
@@ -356,7 +356,7 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 			if mode, ok := queryArgs["mode"]; ok {
 				// Create scenario. This can result in 422 (duplicate error) and this is
 				// fine, since we must only ensure that it exists.
-				client := &Client{&http.Client{}}
+				client := h.http
 				_, err := client.createScenario(scenario[0])
 				httperror(w, r, err)
 				// Begin session
@@ -381,7 +381,7 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// setting context logger
 	method := trace()
@@ -394,7 +394,7 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		handlersContextLogger.Info("Ending session...")
 		// expecting one param - scenario
-		client := &Client{&http.Client{}}
+		client := h.http
 		response, err := client.endSessions(scenario[0])
 		// checking whether we got good response
 		httperror(w, r, err)
@@ -408,8 +408,8 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
-	client := &Client{&http.Client{}}
+func (h HandlerHTTPClient) getScenariosHandler(w http.ResponseWriter, r *http.Request) {
+	client := h.http
 
 	// setting logger
 	method := trace()
