@@ -14,7 +14,7 @@ Client calls:
 This then gets translated into:
 * http://localhost:8001/stubo/api/v2/delay-policy/objects/delay_1
 
-LGC gets response and sends it back to the client.
+LGC gets response (with response code) and sends it back to the client.
 
 ### A little more complex example
 Client calls:
