@@ -231,7 +231,7 @@ func TestPutStubFailNoSession(t *testing.T) {
 	// putting stub
 	_, err := c.putStub(scenario, args, body, headers)
 
-	expect(t, strings.Contains(err.Error(), "scenario or session not supplied"), true)
+	expect(t, strings.Contains(err.Error(), "session key not supplied"), true)
 	refute(t, err, nil)
 }
 
