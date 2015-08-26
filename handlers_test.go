@@ -243,3 +243,36 @@ func TestDeleteDelayPolicyHandler(t *testing.T) {
 	expect(t, respRec.Code, http.StatusOK)
 }
 
+func TestDeleteAllDelayPoliciesHandler(t *testing.T) {
+	testData := `{"version": "0.6.6",
+																 "data": [
+																					{"delay_type":
+																					 "fixed",
+																			  	 "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+																					 "name": "my_delay",
+																					 "milliseconds": 50},
+																					{"delay_type": "fixed",
+																					"delayPolicyRef":
+																					"/stubo/api/v2/delay-policy/objects/my_delay2",
+																					"name": "my_delay2", "milliseconds": 50},
+																					{"delay_type": "fixed",
+																					"delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay1",
+																					"name": "my_delay1",
+																					"milliseconds": 50}]}`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get all delay policies
+	req, err := http.NewRequest("GET", "/stubo/api/delete/delay_policy", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
