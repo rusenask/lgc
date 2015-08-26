@@ -41,7 +41,7 @@ func New(text string) error {
 	return &errorString{text}
 }
 
-func (c *Client) getStubResponse(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
+func (c *Client) getStubResponse(scenario, args string, body []byte, headers map[string]string) ([]byte, int, error) {
 	if session, ok := headers["session"]; ok {
 		if scenario != "" && session != "" {
 			var s params
@@ -57,13 +57,13 @@ func (c *Client) getStubResponse(scenario, args string, body []byte, headers map
 
 			return c.makeRequest(s)
 		}
-		return []byte(""), errors.New("api.getStubResponse error: scenario or session not supplied")
+		return []byte(""), http.StatusBadRequest, errors.New("api.getStubResponse error: scenario or session not supplied")
 	}
-	return []byte(""), errors.New("api.getStubResponse error: session key not supplied")
+	return []byte(""), http.StatusBadRequest, errors.New("api.getStubResponse error: session key not supplied")
 }
 
 // putStub transparently passes request body to Stubo
-func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
+func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, int, error) {
 	if session, ok := headers["session"]; ok {
 		if scenario != "" && session != "" {
 			var s params
@@ -89,9 +89,9 @@ func (c *Client) putStub(scenario, args string, body []byte, headers map[string]
 
 			return c.makeRequest(s)
 		}
-		return []byte(""), errors.New("api.putStub error: scenario or session not supplied")
+		return []byte(""), http.StatusBadRequest, errors.New("api.putStub error: scenario or session not supplied")
 	}
-	return []byte(""), errors.New("api.putStub error: session key not supplied")
+	return []byte(""), http.StatusBadRequest, errors.New("api.putStub error: session key not supplied")
 }
 
 // getStubList calls to Stubo's REST API
@@ -120,7 +120,7 @@ func (c *Client) getScenarioStubs(name string) ([]byte, error) {
 // scenario name and two optional parameters for headers:
 // "force" which defaults to false and "targetHost" which can specify another
 // host
-func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
+func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, int, error) {
 	var s params
 	// adding path
 	if p.name != "" {
@@ -150,7 +150,7 @@ func (c *Client) deleteScenarioStubs(p APIParams) ([]byte, error) {
 		// calling delete
 		return c.makeRequest(s)
 	}
-	return []byte(""), errors.New("api.deleteScenarioStubs error: scenario name not supplied")
+	return []byte(""), http.StatusBadRequest, errors.New("api.deleteScenarioStubs error: scenario name not supplied")
 }
 
 // getDelayPolicy gets specified delay-policy
@@ -190,7 +190,7 @@ func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
-func (c *Client) putDelayPolicy(bodyBytes []byte) ([]byte, error) {
+func (c *Client) putDelayPolicy(bodyBytes []byte) ([]byte, int, error) {
 	path := "/stubo/api/v2/delay-policy"
 
 	var s params
@@ -202,7 +202,7 @@ func (c *Client) putDelayPolicy(bodyBytes []byte) ([]byte, error) {
 
 }
 
-func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
+func (c *Client) deleteDelayPolicy(name string) ([]byte, int, error) {
 	path := "/stubo/api/v2/delay-policy/objects/" + name
 	var s params
 	s.path = path
@@ -223,7 +223,7 @@ func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 
 // beginSession takes session, scenario, mode parameters. Can either
 // set playback or record modes
-func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
+func (c *Client) beginSession(session, scenario, mode string) ([]byte, int, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"begin": null, "session": "` + session + `",  "mode": "` + mode + `"}`
@@ -245,7 +245,7 @@ func (c *Client) beginSession(session, scenario, mode string) ([]byte, error) {
 	return c.makeRequest(s)
 }
 
-func (c *Client) createScenario(scenario string) ([]byte, error) {
+func (c *Client) createScenario(scenario string) ([]byte, int, error) {
 	path := "/stubo/api/v2/scenarios"
 	var s params
 	s.body = `{"scenario": "` + scenario + `"}`
@@ -304,7 +304,7 @@ func (c *Client) getScenarios() ([]byte, error) {
 }
 
 // endSessions ends all specified scenario sessions
-func (c *Client) endSessions(scenario string) ([]byte, error) {
+func (c *Client) endSessions(scenario string) ([]byte, int, error) {
 	path := "/stubo/api/v2/scenarios/objects/" + scenario + "/action"
 	var s params
 	s.body = `{"end": "sessions"}`
@@ -327,7 +327,7 @@ func (c *Client) endSessions(scenario string) ([]byte, error) {
 
 // makeRequest takes Params struct as paramateres and makes request to Stubo
 // then gets response bytes and returns to caller
-func (c *Client) makeRequest(s params) ([]byte, error) {
+func (c *Client) makeRequest(s params) ([]byte, int, error) {
 	url := StuboURI + s.path
 	if s.bodyBytes == nil {
 		s.bodyBytes = []byte(s.body)
@@ -360,7 +360,7 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 			"url":   url,
 		}).Warn("Failed to get response from Stubo!")
 
-		return []byte(""), err
+		return []byte(""), http.StatusInternalServerError, err
 	}
 	defer resp.Body.Close()
 	// reading body
@@ -373,9 +373,9 @@ func (c *Client) makeRequest(s params) ([]byte, error) {
 			"url":   url,
 		}).Warn("Failed to read response from Stubo!")
 
-		return []byte(""), err
+		return []byte(""), http.StatusInternalServerError, err
 	}
-	return body, nil
+	return body, resp.StatusCode, nil
 }
 
 // GetResponseBody calls stubo

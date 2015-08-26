@@ -94,11 +94,12 @@ func (h HandlerHTTPClient) deleteStubsHandler(w http.ResponseWriter, r *http.Req
 		if ok {
 			p.targetHost = host[0]
 		}
-		response, err := client.deleteScenarioStubs(p)
+		response, code, err := client.deleteScenarioStubs(p)
 		// checking whether we got good response
 		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
 		w.Write(response)
 	} else {
 		msg := "Scenario name not provided."
@@ -163,11 +164,12 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 			}).Warn("Failed to read request body!")
 		}
 		// putting stub
-		response, err := client.putStub(scenario, args, body, headers)
+		response, code, err := client.putStub(scenario, args, body, headers)
 		// checking whether we got good response
 		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
 		w.Write(response)
 
 	} else {
@@ -233,11 +235,12 @@ func (h HandlerHTTPClient) getStubResponseHandler(w http.ResponseWriter, r *http
 			}).Warn("Failed to read request body!")
 		}
 		// Getting stubo response to request
-		response, err := client.getStubResponse(scenario, args, body, headers)
+		response, code, err := client.getStubResponse(scenario, args, body, headers)
 		// checking whether we got good response
 		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(code)
 		w.Write(response)
 
 	} else {
@@ -308,9 +311,10 @@ func (h HandlerHTTPClient) putDelayPolicyHandler(w http.ResponseWriter, r *http.
 
 	handlersContextLogger.Info("Got query to create new delay policy.")
 
-	response, err := client.putDelayPolicy(jsonString)
+	response, code, err := client.putDelayPolicy(jsonString)
 	httperror(w, r, err)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	w.Write(response)
 }
 
@@ -331,11 +335,12 @@ func (h HandlerHTTPClient) deleteDelayPolicyHandler(w http.ResponseWriter, r *ht
 	if ok {
 		handlersContextLogger.Info("Deleting specified delay policy")
 		// expecting one param - name
-		response, err := client.deleteDelayPolicy(name[0])
+		response, code, err := client.deleteDelayPolicy(name[0])
 		// checking whether we got good response
 		httperror(w, r, err)
 
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
 		w.Write(response)
 	} else {
 		handlersContextLogger.Info("Deleting all delay policies in two steps")
@@ -372,12 +377,13 @@ func (h HandlerHTTPClient) beginSessionHandler(w http.ResponseWriter, r *http.Re
 				// Create scenario. This can result in 422 (duplicate error) and this is
 				// fine, since we must only ensure that it exists.
 				client := h.http
-				_, err := client.createScenario(scenario[0])
+				_, _, err := client.createScenario(scenario[0])
 				httperror(w, r, err)
 				// Begin session
-				response, err := client.beginSession(session[0], scenario[0], mode[0])
+				response, code, err := client.beginSession(session[0], scenario[0], mode[0])
 				httperror(w, r, err)
 				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(code)
 				w.Write(response)
 			} else {
 				msg := "Bad request, missing session mode key."
@@ -410,11 +416,12 @@ func (h HandlerHTTPClient) endSessionsHandler(w http.ResponseWriter, r *http.Req
 		handlersContextLogger.Info("Ending session...")
 		// expecting one param - scenario
 		client := h.http
-		response, err := client.endSessions(scenario[0])
+		response, code, err := client.endSessions(scenario[0])
 		// checking whether we got good response
 		httperror(w, r, err)
 		// setting resposne header
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
 		w.Write(response)
 	} else {
 		msg := "Scenario name not provided."
