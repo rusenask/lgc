@@ -61,31 +61,34 @@ func (c *Client) getStubResponse(scenario, args string, body []byte, headers map
 
 // putStub transparently passes request body to Stubo
 func (c *Client) putStub(scenario, args string, body []byte, headers map[string]string) ([]byte, error) {
-	if scenario != "" && headers["session"] != "" {
-		var s params
+	if session, ok := headers["session"]; ok {
+		if scenario != "" && session != "" {
+			var s params
 
-		path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs?" + args
+			path := "/stubo/api/v2/scenarios/objects/" + scenario + "/stubs?" + args
 
-		s.path = path
-		s.headers = headers
-		s.method = "PUT"
+			s.path = path
+			s.headers = headers
+			s.method = "PUT"
 
-		// assigning body in bytes
-		s.bodyBytes = body
-		// setting logger
-		method := trace()
-		log.WithFields(log.Fields{
-			"scenario":      scenario,
-			"session":       headers["session"],
-			"urlPath":       path,
-			"headers":       "",
-			"requestMethod": "GET",
-			"func":          method,
-		}).Debug("Adding stub to scenario")
+			// assigning body in bytes
+			s.bodyBytes = body
+			// setting logger
+			method := trace()
+			log.WithFields(log.Fields{
+				"scenario":      scenario,
+				"session":       headers["session"],
+				"urlPath":       path,
+				"headers":       "",
+				"requestMethod": "GET",
+				"func":          method,
+			}).Debug("Adding stub to scenario")
 
-		return c.makeRequest(s)
+			return c.makeRequest(s)
+		}
+		return []byte(""), errors.New("api.putStub error: scenario or session not supplied")
 	}
-	return []byte(""), errors.New("api.putStub error: scenario or session not supplied")
+	return []byte(""), errors.New("api.putStub error: session key not supplied")
 }
 
 // getStubList calls to Stubo's REST API
