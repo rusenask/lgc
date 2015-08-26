@@ -42,6 +42,7 @@ func httperror(w http.ResponseWriter, r *http.Request, err error) {
 		log.WithFields(log.Fields{
 			"url_query": r.URL.Query(),
 			"url_path":  r.URL.Path,
+			"error":     err.Error(),
 		}).Error("Got error during HTTP request to Stubo")
 	}
 }
@@ -163,8 +164,6 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 	})
 	if ok {
 		// session name is present, moving forward
-		//creating MAP for headers
-		headers := make(map[string]string)
 		ScenarioSession := session[0]
 		slices := strings.Split(ScenarioSession, ":")
 		// check whether user has supplied scenario name as well
@@ -177,7 +176,7 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 		scenario := slices[0]
-		headers["session"] = slices[1]
+
 		// removing session from the MAP
 		delete(urlQuery, "session")
 
@@ -188,20 +187,9 @@ func (h HandlerHTTPClient) putStubHandler(w http.ResponseWriter, r *http.Request
 			"stateful":          true,
 			"stub_created_date": true,
 		}
-		var bufferArgs bytes.Buffer
-		// getting more headers and forming query argument
-		for key, value := range urlQuery {
-			// if key is in expected headers (Stubo expects these to be in headers
-			// instead of URL query in API v2, transforming them..)
-			if expectedHeaders[key] {
-				headers[key] = value[0]
-			} else {
-				bufferArgs.WriteString(key + "=" + value[0] + "&")
-			}
-		}
-		args := bufferArgs.String()
+		headers, args := getURLHeadersArgs(expectedHeaders, urlQuery)
+		headers["session"] = slices[1]
 
-		// getting request Body
 		defer r.Body.Close()
 		// reading resposne body
 		body, err := ioutil.ReadAll(r.Body)
