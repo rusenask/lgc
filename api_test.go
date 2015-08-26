@@ -26,7 +26,7 @@ func TestDeleteScenarioStubs(t *testing.T) {
 	data.name = "scenario_1"
 	data.force = "true"
 	data.targetHost = "somehost"
-	response, err := c.deleteScenarioStubs(data)
+	response, _, err := c.deleteScenarioStubs(data)
 	resp := string(response)
 	expect(t, len(response), 52)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -38,7 +38,7 @@ func TestDeleteScenarioStubsFail(t *testing.T) {
 	server, c := testTools(200, testData)
 	defer server.Close()
 	var data APIParams
-	_, err := c.deleteScenarioStubs(data)
+	_, _, err := c.deleteScenarioStubs(data)
 	refute(t, err, nil)
 }
 
@@ -70,7 +70,7 @@ func TestDeleteDelayPolicy(t *testing.T) {
 	server, c := testTools(200, testdata)
 	defer server.Close()
 	name := "delay_policy_name"
-	response, err := c.deleteDelayPolicy(name)
+	response, _, err := c.deleteDelayPolicy(name)
 	resp := string(response)
 	expect(t, strings.Contains(resp, "data"), true)
 	expect(t, err, nil)
@@ -110,7 +110,7 @@ func TestBeginSession(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
 	server, c := testTools(200, testData)
 	defer server.Close()
-	response, err := c.beginSession("session", "scenario", "record")
+	response, _, err := c.beginSession("session", "scenario", "record")
 	resp := string(response)
 	expect(t, len(response), 45)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -121,7 +121,7 @@ func TestCreateScenario(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
 	server, c := testTools(201, testData)
 	defer server.Close()
-	response, err := c.createScenario("scenario_1")
+	response, _, err := c.createScenario("scenario_1")
 	resp := string(response)
 	expect(t, len(response), 45)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -154,7 +154,7 @@ func TestEndSessions(t *testing.T) {
 	testData := `{"version":"1.2.3","data": [{"some: "data"}]`
 	server, c := testTools(201, testData)
 	defer server.Close()
-	response, err := c.endSessions("scenario")
+	response, _, err := c.endSessions("scenario")
 	resp := string(response)
 	expect(t, len(response), 45)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -171,7 +171,7 @@ func TestMakeRequest(t *testing.T) {
 	s.body = `{"end": "sessions"}`
 	s.path = path
 	s.method = "POST"
-	response, err := c.makeRequest(s)
+	response, _, err := c.makeRequest(s)
 	resp := string(response)
 	expect(t, len(response), 45)
 	expect(t, strings.Contains(resp, "data"), true)
@@ -186,7 +186,7 @@ func TestMakeRequestFail(t *testing.T) {
 	// path := "/stubo/api/v2/scenarios/objects/some_scenario/action"
 	var s params
 	StuboURI = "malformed url"
-	_, err := c.makeRequest(s)
+	_, _, err := c.makeRequest(s)
 	refute(t, err, nil)
 }
 
@@ -209,7 +209,7 @@ func TestPutStub(t *testing.T) {
 	headers["session"] = "session_name"
 	headers["stateful"] = "true"
 	// putting stub
-	response, err := c.putStub(scenario, args, body, headers)
+	response, _, err := c.putStub(scenario, args, body, headers)
 	resp := string(response)
 
 	expect(t, strings.Contains(resp, "data"), true)
@@ -218,7 +218,7 @@ func TestPutStub(t *testing.T) {
 
 func TestPutStubFailNoSession(t *testing.T) {
 	testData := `foo`
-	server, c := testTools(200, testData)
+	server, c := testTools(201, testData)
 	defer server.Close()
 
 	scenario := "scenario1"
@@ -229,8 +229,8 @@ func TestPutStubFailNoSession(t *testing.T) {
 	// omitting session key...
 	headers["stateful"] = "true"
 	// putting stub
-	_, err := c.putStub(scenario, args, body, headers)
-
+	_, code, err := c.putStub(scenario, args, body, headers)
+	expect(t, code, 400)
 	expect(t, strings.Contains(err.Error(), "session key not supplied"), true)
 	refute(t, err, nil)
 }
@@ -249,7 +249,7 @@ func TestPutStubFailNoScenario(t *testing.T) {
 	headers["stateful"] = "true"
 	headers["session"] = "some_session"
 	// putting stub
-	_, err := c.putStub(scenario, args, body, headers)
+	_, _, err := c.putStub(scenario, args, body, headers)
 
 	expect(t, strings.Contains(err.Error(), "scenario or session not supplied"), true)
 	refute(t, err, nil)
