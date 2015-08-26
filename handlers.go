@@ -276,7 +276,6 @@ func (h HandlerHTTPClient) putDelayPolicyHandler(w http.ResponseWriter, r *http.
 	httperror(w, r, err)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
-
 }
 
 // deleteDelayPolicyHandler - deletes delay policy
