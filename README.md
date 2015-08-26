@@ -71,13 +71,13 @@ brew install glide
 
 #### Usage
 
->$ glide create                            # Start a new workspaces
-$ open glide.yaml                         # and edit away!
-$ glide get github.com/Masterminds/cookoo # Get a package and add to glide.yaml
-$ glide install                           # Install packages and dependencies
-# work, work, work
-$ go build                                # Go tools work normally
-$ glide up                                # Update to newest versions of the package
+> * glide create                            # Start a new workspaces
+* open glide.yaml                         # and edit away!
+* glide get github.com/Masterminds/cookoo # Get a package and add to glide.yaml
+* glide install                           # Install packages and dependencies
+#### work, work, work
+* go build                                # Go tools work normally
+* glide up                                # Update to newest versions of the package
 
 
 github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
