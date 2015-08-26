@@ -356,3 +356,24 @@ func TestBeginSessionHandlerMissingMode(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusBadRequest)
 }
+
+func TestEndSessionsHandler(t *testing.T) {
+	testData := `begin session`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get all delay policies
+	req, err := http.NewRequest("GET", "/stubo/api/end/sessions?scenario=sce1", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
