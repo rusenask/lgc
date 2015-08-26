@@ -246,9 +246,9 @@ func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.
 
 // deleteDelayPolicyHandler - deletes delay policy
 // stubo/api/delete/delay_policy?name=slow
-func deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
 	name, ok := r.URL.Query()["name"]
-	client := &Client{&http.Client{}}
+	client := h.http
 
 	// setting context logger
 	method := trace()
