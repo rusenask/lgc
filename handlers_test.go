@@ -396,3 +396,27 @@ func TestEndSessionsHandlerMissingScenario(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusBadRequest)
 }
+
+func TestGetScenariosHandler(t *testing.T) {
+	testData := `scenarios`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get all delay policies
+	req, err := http.NewRequest("GET", "/stubo/api/get/scenarios", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+	// reading resposne body
+	body, err := ioutil.ReadAll(respRec.Body)
+
+	expect(t, strings.Contains(string(body), "scenarios"), true)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
