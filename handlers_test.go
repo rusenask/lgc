@@ -460,3 +460,71 @@ func TestGetScenariosHandler(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusOK)
 }
+
+func TestGetStubResponseHandler(t *testing.T) {
+	testData := `Some response`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	req, err := http.NewRequest("POST", "/stubo/api/get/response?session=sce:x",
+		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+	// reading resposne body
+	body, err := ioutil.ReadAll(respRec.Body)
+
+	expect(t, strings.Contains(string(body), "Some response"), true)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
+func TestGetStubResponseHanderMissingSession(t *testing.T) {
+	testData := `Some response`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	req, err := http.NewRequest("POST", "/stubo/api/get/response",
+		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+	// reading resposne body
+	_, err = ioutil.ReadAll(respRec.Body)
+
+	expect(t, respRec.Code, http.StatusBadRequest)
+}
+
+func TestGetStubResponseHanderMissingScenarioPrefix(t *testing.T) {
+	testData := `Some response`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	req, err := http.NewRequest("POST", "/stubo/api/get/response?session=x",
+		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+	// reading resposne body
+	_, err = ioutil.ReadAll(respRec.Body)
+
+	expect(t, respRec.Code, http.StatusBadRequest)
+}

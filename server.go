@@ -83,6 +83,7 @@ func main() {
 func getRouter(h HandlerHTTPClient) *bone.Mux {
 	mux := bone.New()
 	mux.Post("/stubo/api/put/stub", http.HandlerFunc(h.putStubHandler))
+	mux.Post("/stubo/api/get/response", http.HandlerFunc(h.getStubResponseHandler))
 	mux.Get("/stubo/api/get/stublist", http.HandlerFunc(h.stublistHandler))
 	mux.Get("/stubo/api/delete/stubs", http.HandlerFunc(h.deleteStubsHandler))
 	mux.Get("/stubo/api/put/delay_policy", http.HandlerFunc(h.putDelayPolicyHandler))
