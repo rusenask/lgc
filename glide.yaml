@@ -1,0 +1,14 @@
+package: main
+import:
+  - package: github.com/Sirupsen/logrus
+    repo:    https://github.com/Sirupsen/logrus
+    vcs:     git
+  - package: github.com/codegangsta/negroni
+    repo:    https://github.com/codegangsta/negroni
+    vcs:     git
+  - package: github.com/go-zoo/bone
+    repo:    https://github.com/go-zoo/bone
+    vcs:     git
+  - package: github.com/meatballhat/negroni-logrus
+    repo:    https://github.com/meatballhat/negroni-logrus
+    vcs:     git
