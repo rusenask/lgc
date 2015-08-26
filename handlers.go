@@ -381,7 +381,7 @@ func (h HandlerHTTPClient) beginSessionHandler(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// setting context logger
 	method := trace()
@@ -394,7 +394,7 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		handlersContextLogger.Info("Ending session...")
 		// expecting one param - scenario
-		client := &Client{&http.Client{}}
+		client := h.http
 		response, err := client.endSessions(scenario[0])
 		// checking whether we got good response
 		httperror(w, r, err)
@@ -408,8 +408,8 @@ func endSessionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getScenariosHandler(w http.ResponseWriter, r *http.Request) {
-	client := &Client{&http.Client{}}
+func (h HandlerHTTPClient) getScenariosHandler(w http.ResponseWriter, r *http.Request) {
+	client := h.http
 
 	// setting logger
 	method := trace()

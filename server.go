@@ -88,7 +88,7 @@ func getRouter(h HandlerHTTPClient) *bone.Mux {
 	mux.Get("/stubo/api/get/delay_policy", http.HandlerFunc(h.getDelayPolicyHandler))
 	mux.Get("/stubo/api/delete/delay_policy", http.HandlerFunc(h.deleteDelayPolicyHandler))
 	mux.Get("/stubo/api/begin/session", http.HandlerFunc(h.beginSessionHandler))
-	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(endSessionsHandler))
-	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(getScenariosHandler))
+	mux.Get("/stubo/api/end/sessions", http.HandlerFunc(h.endSessionsHandler))
+	mux.Get("/stubo/api/get/scenarios", http.HandlerFunc(h.getScenariosHandler))
 	return mux
 }
