@@ -124,6 +124,13 @@ Debug - when enabled outputs more information about request forming before dispa
 * List Bookmarks - not present in API v2
 * get/stats - not present in API v2
 
+### Loggin
+
+LGC uses logrus logging middleware. If "debug" mode in configuration is set to true -
+debug level logs are being written as well. You can set different logging levels in
+server.go
+
+
 ### Compatibility
 API compatibility issues:
 * Need to find a way to end a specific version. Current API v2 needs scenario name to end session:
