@@ -338,7 +338,7 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 
 // begin/session (GET, POST)
 // stubo/api/begin/session?scenario=first&session=first_1&mode=playback
-func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
+func (h HandlerHTTPClient) beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 	queryArgs, _ := url.ParseQuery(r.URL.RawQuery)
 
 	// setting context logger
@@ -356,7 +356,7 @@ func beginSessionHandler(w http.ResponseWriter, r *http.Request) {
 			if mode, ok := queryArgs["mode"]; ok {
 				// Create scenario. This can result in 422 (duplicate error) and this is
 				// fine, since we must only ensure that it exists.
-				client := &Client{&http.Client{}}
+				client := h.http
 				_, err := client.createScenario(scenario[0])
 				httperror(w, r, err)
 				// Begin session
