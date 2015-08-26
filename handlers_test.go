@@ -222,3 +222,24 @@ func TestGetAllDelayPolicyHandler(t *testing.T) {
 
 	expect(t, respRec.Code, http.StatusOK)
 }
+
+func TestDeleteDelayPolicyHandler(t *testing.T) {
+	testData := `delay`
+	server, c := testTools(200, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get all delay policies
+	req, err := http.NewRequest("GET", "/stubo/api/delete/delay_policy?name=some_delay", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
