@@ -242,6 +242,75 @@ func getSession(r *http.Request) (string, bool) {
 	}
 	return "", false
 }
+
+func (h HandlerHTTPClient) getStubResponseHandler(w http.ResponseWriter, r *http.Request) {
+	urlQuery := r.URL.Query()
+	// getting session name
+	ScenarioSession, ok := getSession(r)
+
+	client := h.http
+
+	// setting context logger
+	method := trace()
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": urlQuery,
+		"url_path":  r.URL.Path,
+		"func":      method,
+	})
+	if ok {
+		// session name is present, moving forward
+		slices := strings.Split(ScenarioSession, ":")
+		// check whether user has supplied scenario name as well
+		if len(slices) < 2 {
+			msg := "Bad request, missing session or scenario name. When under proxy, please use 'scenario:session' format in your" +
+				"URL query, such as '/stubo/api/get/response?session=scenario:session_name' "
+			handlersContextLogger.Warn(msg)
+			log.Warn(msg)
+			http.Error(w, msg, 400)
+			return
+		}
+		scenario := slices[0]
+
+		// removing session from the MAP
+		delete(urlQuery, "session")
+
+		// these URL query arguments are expected and should be converted to headers
+		expectedHeaders := map[string]bool{}
+		headers, args := getURLHeadersArgs(expectedHeaders, urlQuery)
+		headers["session"] = slices[1]
+
+		log.WithFields(log.Fields{
+			"headers":  headers,
+			"args":     args,
+			"scenario": scenario,
+		}).Info("Get response Args and Headers created...")
+
+		defer r.Body.Close()
+		// reading resposne body
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			// logging read error
+			log.WithFields(log.Fields{
+				"error": err.Error(),
+				"func":  method,
+			}).Warn("Failed to read request body!")
+		}
+		// Getting stubo response to request
+		response, err := client.getStubResponse(scenario, args, body, headers)
+		// checking whether we got good response
+		httperror(w, r, err)
+		// setting resposne header
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+
+	} else {
+		msg := "Bad request, missing session name."
+		handlersContextLogger.Warn(msg)
+		http.Error(w, msg, 400)
+	}
+}
+
 // getDelayPolicyHandler - returns delay policy information, list all if
 // name is not provided, e.g.: stubo/api/get/delay_policy?name=slow
 func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
