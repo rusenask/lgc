@@ -183,6 +183,46 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 	expect(t, respRec.Code, http.StatusOK)
 }
 
+func TestPutDelayPolicyHandler(t *testing.T) {
+	testData := `inserted`
+	server, c := testTools(201, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get specific delay policy
+	req, err := http.NewRequest("GET", "/stubo/api/put/delay_policy?name=slow&delay_type=fixed&milliseconds=1000", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
+func TestPutDelayPolicyHandlerNoParams(t *testing.T) {
+	testData := `inserted`
+	server, c := testTools(201, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	//Testing get specific delay policy
+	req, err := http.NewRequest("GET", "/stubo/api/put/delay_policy", nil)
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+
+	expect(t, respRec.Code, http.StatusOK)
+}
+
 func TestGetDelayPolicyHandler(t *testing.T) {
 	testData := `delay`
 	server, c := testTools(200, testData)

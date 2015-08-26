@@ -244,6 +244,40 @@ func (h HandlerHTTPClient) getDelayPolicyHandler(w http.ResponseWriter, r *http.
 	}
 }
 
+// putDelayPolicyHandler takes URL query arguments and turns them into JSON
+// example query: stubo/api/put/delay_policy?name=slow&delay_type=fixed&milliseconds=1000
+func (h HandlerHTTPClient) putDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
+	urlQuery := r.URL.Query()
+	client := h.http
+	// query MAP stores key/value pairs, although all the values are of array type []
+	newQuery := make(map[string]string)
+	for key, value := range urlQuery {
+		// taking only first argument
+		newQuery[key] = value[0]
+	}
+
+	// setting context logger
+	method := trace()
+
+	// converting query MAP to JSON key/value pairs
+	jsonString, err := json.Marshal(newQuery)
+
+	httperror(w, r, err)
+
+	handlersContextLogger := log.WithFields(log.Fields{
+		"url_query": r.URL.Query(),
+		"url_path":  r.URL.Path,
+		"func":      method,
+	})
+
+	handlersContextLogger.Info("Got query to create new delay policy.")
+
+	response, err := client.putDelayPolicy(jsonString)
+	httperror(w, r, err)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
+}
+
 // deleteDelayPolicyHandler - deletes delay policy
 // stubo/api/delete/delay_policy?name=slow
 func (h HandlerHTTPClient) deleteDelayPolicyHandler(w http.ResponseWriter, r *http.Request) {
