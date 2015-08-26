@@ -166,6 +166,18 @@ func (c *Client) getAllDelayPolicies() ([]byte, error) {
 	return c.GetResponseBody(path)
 }
 
+func (c *Client) putDelayPolicy(bodyBytes []byte) ([]byte, error) {
+	path := "/stubo/api/v2/delay-policy"
+
+	var s params
+	s.bodyBytes = bodyBytes
+	s.path = path
+	s.method = "PUT"
+
+	return c.makeRequest(s)
+
+}
+
 func (c *Client) deleteDelayPolicy(name string) ([]byte, error) {
 	path := "/stubo/api/v2/delay-policy/objects/" + name
 	var s params
