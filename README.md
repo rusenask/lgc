@@ -1,8 +1,8 @@
-# Stubo proxy prototype
+# Stub-O-Matic proxy
 
 [![Build Status](https://travis-ci.org/rusenask/lgc.svg?branch=master)](https://travis-ci.org/rusenask/lgc)
 
-Proxy to work with stubo API v2 (which is still under development). After setting
+Proxy to work with Stub-O-Matic API v2 (which is still under development). After setting
 it up - it will translate all legacy API calls to new format REST API calls.
 
 ### Example
