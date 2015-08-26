@@ -128,6 +128,23 @@ func (h HandlerHTTPClient) deleteStubsHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
+func getURLHeadersArgs(expectedHeaders map[string]bool, urlQuery map[string][]string) (map[string]string, string) {
+	var bufferArgs bytes.Buffer
+	headers := make(map[string]string)
+	// getting more headers and forming query argument
+	for key, value := range urlQuery {
+		// if key is in expected headers (Stubo expects these to be in headers
+		// instead of URL query in API v2, transforming them..)
+		if expectedHeaders[key] {
+			headers[key] = value[0]
+		} else {
+			bufferArgs.WriteString(key + "=" + value[0] + "&")
+		}
+	}
+	args := bufferArgs.String()
+	return headers, args
+}
+
 // putStubHandler takes in POST request from client, transforms URL query arguments
 // to header values and calls another function that calls Stubo API v2, returns
 // response bytes without unmarshalling/marshalling them
