@@ -1,8 +1,8 @@
-# Stubo proxy prototype
+# Stub-O-Matic proxy
 
 [![Build Status](https://travis-ci.org/rusenask/lgc.svg?branch=master)](https://travis-ci.org/rusenask/lgc)
 
-Proxy to work with stubo API v2 (which is still under development). After setting
+Proxy to work with Stub-O-Matic API v2 (which is still under development). After setting
 it up - it will translate all legacy API calls to new format REST API calls.
 
 ### Example
@@ -117,7 +117,7 @@ Debug - when enabled outputs more information about request forming before dispa
 * begin/session - __implemented__ (both playback and record modes)
 * end/session - not compatible with current API v2, use "end/sessions" call
 * end/sessions - __implemented__
-* put/scenarios - not present in API v2
+* put/scenarios (rename existing scenario) - not present in API v2
 * get/scenarios - __implemented__
 * put/stub:
     + basic insertion with scenario_name:session_name - __implemented__
@@ -134,7 +134,7 @@ Debug - when enabled outputs more information about request forming before dispa
 * delete/delay_policy:
     + name provided - __implemented__
     + name not provided (should delete all delay policies) - __implemented__
-* get/response - not present in API v2
+* get/response - __implemented__
 * delete/stubs:
     + host provided - __implemented__
     + force provided - __implemented__
