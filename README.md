@@ -55,13 +55,39 @@ Stubo then sends back response and proxy passes those bytes back to the client:
 ```
 
 ### Requirements
-go get github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
 
-go get github.com/codegangsta/negroni - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
+LGC uses vendor/ to manage dependencies. Enable vendor experiment:
 
-go get github.com/meatballhat/negroni-logrus - Negroni/Logrus middleware for merging
+GO15VENDOREXPERIMENT set to 1
+
+"export GO15VENDOREXPERIMENT=1"
+
+Requirements are managed by Glide - https://github.com/Masterminds/glide
+You only need it if you want to add new/remove/update packages.
+
+To install Glide on your PC, run:
+
+brew install glide
+
+#### Usage
+
+>$ glide create                            # Start a new workspaces
+$ open glide.yaml                         # and edit away!
+$ glide get github.com/Masterminds/cookoo # Get a package and add to glide.yaml
+$ glide install                           # Install packages and dependencies
+# work, work, work
+$ go build                                # Go tools work normally
+$ glide up                                # Update to newest versions of the package
+
+
+github.com/go-zoo/bone - lightweight and lightning fast HTTP Multiplexer for Golang.
+
+github.com/codegangsta/negroni - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
+
+github.com/meatballhat/negroni-logrus - Negroni/Logrus middleware for merging
 negroni logs with application logging. This provides additional data such as status codes,
 time taken for response and latency
+
 ### Configuration
 
 Edit conf.json.example with your stubo instance details:
