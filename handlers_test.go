@@ -138,7 +138,7 @@ func TestPutStubsHandlerSuccess(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusOK)
+	expect(t, respRec.Code, http.StatusCreated)
 }
 
 func TestPutStubsHandlerNoScenario(t *testing.T) {
@@ -180,7 +180,7 @@ func TestPutStubsHandlerMultipleHeaders(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusOK)
+	expect(t, respRec.Code, http.StatusCreated)
 }
 
 func TestPutDelayPolicyHandler(t *testing.T) {
@@ -200,7 +200,7 @@ func TestPutDelayPolicyHandler(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusOK)
+	expect(t, respRec.Code, http.StatusCreated)
 }
 
 func TestPutDelayPolicyHandlerNoParams(t *testing.T) {
@@ -220,7 +220,7 @@ func TestPutDelayPolicyHandlerNoParams(t *testing.T) {
 
 	m.ServeHTTP(respRec, req)
 
-	expect(t, respRec.Code, http.StatusOK)
+	expect(t, respRec.Code, http.StatusCreated)
 }
 
 func TestGetDelayPolicyHandler(t *testing.T) {
@@ -527,4 +527,26 @@ func TestGetStubResponseHanderMissingScenarioPrefix(t *testing.T) {
 	_, err = ioutil.ReadAll(respRec.Body)
 
 	expect(t, respRec.Code, http.StatusBadRequest)
+}
+
+func TestGetStubResponseHanderWithStatusCode(t *testing.T) {
+	testData := `Some response`
+	server, c := testTools(123123, testData)
+	m := setup(*c)
+
+	defer server.Close()
+
+	req, err := http.NewRequest("POST", "/stubo/api/get/response?session=sce1:ses!",
+		strings.NewReader("anything here, proxy doesn't unmarshall it anyway"))
+	// no error is expected
+	expect(t, err, nil)
+
+	//The response recorder used to record HTTP responses
+	respRec := httptest.NewRecorder()
+
+	m.ServeHTTP(respRec, req)
+	// reading resposne body
+	_, err = ioutil.ReadAll(respRec.Body)
+
+	expect(t, respRec.Code, 123123)
 }

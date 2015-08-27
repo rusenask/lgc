@@ -89,7 +89,7 @@ func (c *Client) deleteAllDelayPolicies(dp []byte) ([]byte, error) {
 	// Deleting delay policies
 	var responses []string
 	for _, dp := range data.Data {
-		_, err := c.deleteDelayPolicy(dp.Name)
+		_, _, err := c.deleteDelayPolicy(dp.Name)
 
 		if err == nil {
 			responses = append(responses, dp.Name)
