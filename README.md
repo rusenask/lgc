@@ -108,6 +108,26 @@ modify logging formatter yourself in server.go file.
 
 Debug - when enabled outputs more information about request forming before dispatching them to stubo.
 
+#### Using Docker during development
+
+* Build container:
+
+__docker build -t lgc .__
+
+
+* Run your image:
+
+__docker run --publish 3000:3000 --add-host="localhost:192.168.59.3" --name lgc --rm lgc__
+
+Used flags:
+* --publish 3000:3000 publishes application port, by default LGC uses port 3000 but you can map any port Here
+* --add-host="localhost:192.168.59.3" - useful when running stubo on the same machine (localhost)
+> During boot2docker initialization, boot2docker sets up two network adapters, one using NAT and the other a "host-only" adapter. The IP of the host on that host-only network is determined by virtualbox. You can inspect it by running ifconfig on your host and looking at the vboxnet0 interface. By default it's 192.168.59.3, but you can change it in virtualbox's global settings at Preferences -> Network -> Host-only Networks. I am able to ping that IP both from within the boot2docker VM and from within a running docker container.
+
+* --name lgc - assigns some expected name to your container
+* --rm lgc - removes container
+
+
 
 ### Current legacy API translations
 
